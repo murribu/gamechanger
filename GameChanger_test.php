@@ -121,36 +121,36 @@ while($row_CLI = $stmt_CLI->fetch(PDO::FETCH_ASSOC)){
 }
 
 $teams = array(
-	array('display' => 'Arizona Diamondbacks', 'id' => 'ARI'),
-	array('display' => 'Atlanta Braves', 'id' => 'ATL'),
-	array('display' => 'Baltimore Orioles', 'id' => 'BAL'),
-	array('display' => 'Boston Red Sox', 'id' => 'BOS'),
-	array('display' => 'Chicago Cubs', 'id' => 'CHC'),
-	array('display' => 'Chicago White Sox', 'id' => 'CWS'),
-	array('display' => 'Cincinnati Reds', 'id' => 'CIN'),
-	array('display' => 'Cleveland Indians', 'id' => 'CLE'),
-	array('display' => 'Colorado Rockies', 'id' => 'COL'),
-	array('display' => 'Detroit Tigers', 'id' => 'DET'),
-	array('display' => 'Houston Astros', 'id' => 'HOU'),
-	array('display' => 'Kansas City Royals', 'id' => 'KC'),
-	array('display' => 'Los Angeles Angels of Anaheim', 'id' => 'LAA'),
-	array('display' => 'Los Angeles Dodgers', 'id' => 'LAD'),
-	array('display' => 'Miami Marlins', 'id' => 'MIA'),
-	array('display' => 'Milwaukee Brewers', 'id' => 'MIL'),
-	array('display' => 'Minnesota Twins', 'id' => 'MIN'),
-	array('display' => 'New York Mets', 'id' => 'NYM'),
-	array('display' => 'New York Yankees', 'id' => 'NYY'),
-	array('display' => 'Oakland Athletics', 'id' => 'OAK'),
-	array('display' => 'Philadelphia Phillies', 'id' => 'PHI'),
-	array('display' => 'Pittsburgh Pirates', 'id' => 'PIT'),
-	array('display' => 'San Diego Padres', 'id' => 'SD'),
-	array('display' => 'San Francisco Giants', 'id' => 'SF'),
-	array('display' => 'Seattle Mariners', 'id' => 'SEA'),
-	array('display' => 'St. Louis Cardinals', 'id' => 'STL'),
-	array('display' => 'Tampa Bay Rays', 'id' => 'TB'),
-	array('display' => 'Texas Rangers', 'id' => 'TEX'),
-	array('display' => 'Toronto Blue Jays', 'id' => 'TOR'),
-	array('display' => 'Washington Nationals', 'id' => 'WSH')
+	array('display' => 'Arizona Diamondbacks', 'id' => 'ARI', 'league' => 'NL'),
+	array('display' => 'Atlanta Braves', 'id' => 'ATL', 'league' => 'NL'),
+	array('display' => 'Baltimore Orioles', 'id' => 'BAL', 'league' => 'AL'),
+	array('display' => 'Boston Red Sox', 'id' => 'BOS', 'league' => 'AL'),
+	array('display' => 'Chicago Cubs', 'id' => 'CHC', 'league' => 'NL'),
+	array('display' => 'Chicago White Sox', 'id' => 'CWS', 'league' => 'AL'),
+	array('display' => 'Cincinnati Reds', 'id' => 'CIN', 'league' => 'NL'),
+	array('display' => 'Cleveland Indians', 'id' => 'CLE', 'league' => 'AL'),
+	array('display' => 'Colorado Rockies', 'id' => 'COL', 'league' => 'NL'),
+	array('display' => 'Detroit Tigers', 'id' => 'DET', 'league' => 'AL'),
+	array('display' => 'Houston Astros', 'id' => 'HOU', 'league' => 'AL'),
+	array('display' => 'Kansas City Royals', 'id' => 'KC', 'league' => 'AL'),
+	array('display' => 'Los Angeles Angels of Anaheim', 'id' => 'LAA', 'league' => 'AL'),
+	array('display' => 'Los Angeles Dodgers', 'id' => 'LAD', 'league' => 'NL'),
+	array('display' => 'Miami Marlins', 'id' => 'MIA', 'league' => 'NL'),
+	array('display' => 'Milwaukee Brewers', 'id' => 'MIL', 'league' => 'NL'),
+	array('display' => 'Minnesota Twins', 'id' => 'MIN', 'league' => 'AL'),
+	array('display' => 'New York Mets', 'id' => 'NYM', 'league' => 'NL'),
+	array('display' => 'New York Yankees', 'id' => 'NYY', 'league' => 'AL'),
+	array('display' => 'Oakland Athletics', 'id' => 'OAK', 'league' => 'AL'),
+	array('display' => 'Philadelphia Phillies', 'id' => 'PHI', 'league' => 'NL'),
+	array('display' => 'Pittsburgh Pirates', 'id' => 'PIT', 'league' => 'NL'),
+	array('display' => 'San Diego Padres', 'id' => 'SD', 'league' => 'NL'),
+	array('display' => 'San Francisco Giants', 'id' => 'SF', 'league' => 'NL'),
+	array('display' => 'Seattle Mariners', 'id' => 'SEA', 'league' => 'AL'),
+	array('display' => 'St. Louis Cardinals', 'id' => 'STL', 'league' => 'NL'),
+	array('display' => 'Tampa Bay Rays', 'id' => 'TB', 'league' => 'AL'),
+	array('display' => 'Texas Rangers', 'id' => 'TEX', 'league' => 'AL'),
+	array('display' => 'Toronto Blue Jays', 'id' => 'TOR', 'league' => 'AL'),
+	array('display' => 'Washington Nationals', 'id' => 'WSH', 'league' => 'NL')
 );
 
 $LI = array(
@@ -658,7 +658,7 @@ for(var i = 0; i < dropDownType.length; i++){
 // Populates 2nd dropdown list based on first (category)
 function configureDropDownLists(ddl1,ddl2) {
 	var teams = <?php echo json_encode($teams); ?>;
-	var players = <?php echo json_encode($players); ?>;
+	var local_players = <?php echo json_encode($players); ?>;
 	var LI = <?php echo json_encode($LI); ?>;
 	var NoNo = <?php echo json_encode($NoNo); ?>;
 	var GameSit = <?php echo json_encode($GameSit); ?>;
@@ -667,20 +667,20 @@ function configureDropDownLists(ddl1,ddl2) {
 	switch (ddl1.value) {
 		case 'bat':
 			ddl2.options.length = 0;
-			for (i = 0; i < players.length; i++) {
-				createOption(ddl2, players[i]['display'], players[i]['id']);
+			for (i = 0; i < local_players.length; i++) {
+				createOption(ddl2, local_players[i]['display'], local_players[i]['id']);
 			}
 			break;
 		case 'pit':
 			ddl2.options.length = 0;
-			for (i = 0; i < players.length; i++) {
-				createOption(ddl2, players[i]['display'], players[i]['id']);
+			for (i = 0; i < local_players.length; i++) {
+				createOption(ddl2, local_players[i]['display'], local_players[i]['id']);
 			}
 			break;
 		case 'run':
 			ddl2.options.length = 0;
-			for (i = 0; i < players.length; i++) {
-				createOption(ddl2, players[i]['display'], players[i]['id']);
+			for (i = 0; i < local_players.length; i++) {
+				createOption(ddl2, local_players[i]['display'], local_players[i]['id']);
 			}
 			break;
 		case 'LI':
@@ -1524,5 +1524,13 @@ function update(){
   });
 }
 update();
+window.players = <?php echo json_encode($players); ?>;
+window.posPlayers = <?php echo json_encode($posPlayers);?>;
+window.games_CLI = <?php echo json_encode($games_CLI); ?>;
+window.teams = <?php echo json_encode($teams); ?>;
+window.LI = <?php echo json_encode($LI); ?>;
+window.NoNo = <?php echo json_encode($NoNo); ?>;
+window.GameSit = <?php echo json_encode($GameSit); ?>;
+window.Misc = <?php echo json_encode($Misc); ?>;
 </script>
 <script src="/gamechanger.js"></script>
