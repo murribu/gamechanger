@@ -89,6 +89,79 @@
             </div>
           </div>
         </div>
+        <div class="GC-settings">
+          <h3 class="GC-settings-title">Championship Leverage Index</h3>
+          <div class="team-ignore">
+            <input
+              type="radio"
+              class="form__radio"
+              id="include_CLI_Y"
+              name="include_CLI"
+              value="Y"
+              v-model="include_CLI"
+            />
+            <label for="include_CLI_Y"
+              ><span></span> Include in Leverage Index</label
+            >
+          </div>
+          <div class="team-ignore">
+            <input
+              type="radio"
+              class="form__radio"
+              id="include_CLI_N"
+              name="include_CLI"
+              value="N"
+              v-model="include_CLI"
+            />
+            <label for="include_CLI_N"
+              ><span></span> Do not include in Leverage Index</label
+            >
+          </div>
+        </div>
+        <div class="GC-settings">
+          <h3 class="GC-settings-title">Delay</h3>
+          <select
+            class="form__dropdown-select"
+            id="delay"
+            name="delay"
+            v-model="delay"
+          >
+            <option :value="n" v-for="n in 75">{{ n }} seconds</option>
+          </select>
+          <br />
+          * Time between MLB's gamday feed
+          <br />
+          and MLB.tv broadcast
+        </div>
+        <div class="GC-settings">
+          <h3 class="GC-settings-title">Video Player</h3>
+          <div class="team-ignore">
+            <input
+              type="radio"
+              class="form__radio"
+              id="vid_player_reg"
+              name="vid_player"
+              value="reg"
+              v-model="vid_player"
+            />
+            <label for="vid_player_reg"
+              ><span></span> Regular MLB.tv video player</label
+            >
+          </div>
+          <div class="team-ignore">
+            <input
+              type="radio"
+              class="form__radio"
+              id="vid_player_old"
+              name="vid_player"
+              value="old"
+              v-model="vid_player"
+            />
+            <label for="vid_player_old"
+              ><span></span> Old MLB.tv video player</label
+            >
+          </div>
+        </div>
       </div>
       <div class="GC-column">
         <div class="GC-settings">
@@ -202,6 +275,9 @@ export default {
         }
       ],
       ondeck: "N",
+      include_CLI: "N",
+      delay: 5,
+      vid_player: "reg",
       priorities: [{ type: "", object: "", switch_immediately: false }]
     };
   },
