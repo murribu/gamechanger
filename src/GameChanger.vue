@@ -282,6 +282,26 @@ export default {
     };
   },
   watch: {
+    ondeck: {
+      handler: function(val, oldVal) {
+        localStorage.setItem("ondeck", val);
+      }
+    },
+    include_CLI: {
+      handler: function(val, oldVal) {
+        localStorage.setItem("include_CLI", val);
+      }
+    },
+    delay: {
+      handler: function(val, oldVal) {
+        localStorage.setItem("delay", val);
+      }
+    },
+    vid_player: {
+      handler: function(val, oldVal) {
+        localStorage.setItem("vid_player", val);
+      }
+    },
     priorities: {
       handler: function(val, oldVal) {
         if (
@@ -295,12 +315,51 @@ export default {
             switch_immediately: false
           });
         }
+        localStorage.setItem("priorities", JSON.stringify(val));
+      },
+      deep: true
+    },
+    teams: {
+      handler: function(val, oldVal) {
+        localStorage.setItem(
+          "ignoredTeams",
+          JSON.stringify(
+            val.reduce((accumulator, current_team) => {
+              if (current_team.ignore) {
+                accumulator.push(current_team.id);
+              }
+              return accumulator;
+            }, [])
+          )
+        );
       },
       deep: true
     }
   },
   mounted() {
-    this.teams = [...window.teams];
+    this.teams = [...window.teams].map(t => {
+      t.ignore = false;
+      return t;
+    });
+    if (localStorage.getItem("ignoredTeams")) {
+      const ignoredTeams = JSON.parse(localStorage.getItem("ignoredTeams"));
+      for (var team = 0; team < teams.length - 1; team++) {
+        this.teams[team].ignore =
+          ignoredTeams.indexOf(this.teams[team].id) > -1;
+      }
+    }
+    if (localStorage.getItem("ondeck")) {
+      this.ondeck = localStorage.getItem("ondeck");
+    }
+    if (localStorage.getItem("include_CLI")) {
+      this.include_CLI = localStorage.getItem("include_CLI");
+    }
+    if (localStorage.getItem("delay")) {
+      this.delay = localStorage.getItem("delay");
+    }
+    if (localStorage.getItem("vid_player")) {
+      this.vid_player = localStorage.getItem("vid_player");
+    }
   },
   methods: {
     ordered_teams_by_league(league) {
