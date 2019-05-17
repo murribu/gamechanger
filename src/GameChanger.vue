@@ -228,7 +228,10 @@
                     />
                     <label :for="'immediate_' + (key + 1)"><span></span></label>
                   </div>
-                  <svg class="drag__delete">
+                  <svg
+                    class="drag__delete"
+                    @click.prevent="deletePriority(key)"
+                  >
                     <use xlink:href="images/sprite.svg#icon-bin"></use>
                   </svg>
                   <svg class="drag__handle">
@@ -245,8 +248,11 @@
 </template>
 
 <script>
+import Vue from "vue";
 import Game from "./components/Game.vue";
 import draggable from "vuedraggable";
+import axios from "axios";
+import { get_calendar_event_id, get_base_situation } from "./helpers";
 
 // ***** TODO ***** REMOVE THIS BEFORE RELEASING
 import "./style.css";
@@ -256,29 +262,13 @@ export default {
   data() {
     return {
       teams: [],
-      games: [
-        {
-          half: "bottom",
-          highlighted: false,
-          inning: 5,
-          home: { name: "Athletics", runs: 3, hits: 4, errors: 0 },
-          away: { name: "Mariners", runs: 4, hits: 6, errors: 1 },
-          outs: 2,
-          runner_on_first: true,
-          runner_on_second: false,
-          runner_on_third: true,
-          leverage_index: 0.41,
-          pitching: "Mike Leake",
-          atbat: "Ramon Laureano",
-          ondeck: "Robbie Grossman",
-          calendar_event_id: "14-566391-2019-05-14"
-        }
-      ],
+      games: [],
       ondeck: "N",
       include_CLI: "N",
       delay: 5,
       vid_player: "reg",
-      priorities: [{ type: "", object: "", switch_immediately: false }]
+      priorities: [{ type: "", object: "", switch_immediately: false }],
+      cur_game_vid: ""
     };
   },
   watch: {
@@ -348,6 +338,9 @@ export default {
           ignoredTeams.indexOf(this.teams[team].id) > -1;
       }
     }
+    if (localStorage.getItem("priorities")) {
+      this.priorities = JSON.parse(localStorage.getItem("priorities"));
+    }
     if (localStorage.getItem("ondeck")) {
       this.ondeck = localStorage.getItem("ondeck");
     }
@@ -360,6 +353,7 @@ export default {
     if (localStorage.getItem("vid_player")) {
       this.vid_player = localStorage.getItem("vid_player");
     }
+    this.updateGames();
   },
   methods: {
     ordered_teams_by_league(league) {
@@ -377,7 +371,7 @@ export default {
           retVal = window.players;
           break;
         case "LI":
-          retVal = window.LI;
+          retVal = window.leverage_index_thresholds;
           break;
         case "team":
         case "team_bat":
@@ -394,7 +388,114 @@ export default {
           retVal = window.Misc;
           break;
       }
-      return retVal.sort((a, b) => (a.display > b.display ? 1 : -1));
+      return retVal;
+    },
+    deletePriority(key) {
+      if (confirm("Delete priority?")) {
+        this.priorities.splice(key, 1);
+      }
+    },
+    updateGames() {
+      const user_date = new Date();
+      const user_time = user_date.getTime();
+      const user_offset = user_date.getTimezoneOffset() * 60000;
+      const utc = user_time + user_offset;
+      const western_time = utc + 3600000 * -8;
+      const date = new Date(western_time);
+
+      const day = ("0" + date.getDate()).slice(-2);
+      const month = ("0" + (date.getMonth() + 1)).slice(-2);
+      const year = date.getFullYear();
+      const url =
+        "//gd2.mlb.com/components/game/mlb/year_" +
+        year +
+        "/month_" +
+        month +
+        "/day_" +
+        day +
+        "/master_scoreboard.json?v=" +
+        new Date().getTime();
+      axios.get(url).then(({ data }) => {
+        const games_from_mlb = data.data.games.game;
+        const active_statuses = ["I", "MC", "MA", "MI"];
+        const active_inning_states = ["Top", "Bottom"];
+        console.log(games_from_mlb);
+        let games = [];
+        for (
+          var gameIndex = 0;
+          gameIndex < games_from_mlb.length;
+          gameIndex++
+        ) {
+          const game = games_from_mlb[gameIndex];
+          if (
+            active_statuses.indexOf(game.status.ind) > -1 &&
+            active_inning_states.indexOf(game.status.inning_state) > -1 &&
+            game.status.status !== "Delayed"
+          ) {
+            const game = games_from_mlb[gameIndex];
+            const base_situation = get_base_situation(
+              game.runners_on_base.status
+            );
+            var half_name = game.status.top_inning === "Y" ? "top" : "bottom";
+            var leverage_index = "";
+            const championship_leverage_index =
+              this.include_CLI === "Y"
+                ? window.games_CLI[game.home_name_abbrev]
+                : 1;
+            if (game.status.o === 3) {
+              half_name = half_name === "top" ? "middle" : "end";
+            }
+            games.push({
+              half: half_name,
+              highlighted: get_calendar_event_id(game) === this.cur_game_vid,
+              inning: game.status.inning,
+              home: {
+                name: this.teams.find(t => t.id === game.home_name_abbrev).name,
+                runs: game.linescore.r.home,
+                hits: game.linescore.h.home,
+                errors: game.linescore.e.home
+              },
+              away: {
+                name: this.teams.find(t => t.id === game.away_name_abbrev).name,
+                runs: game.linescore.r.away,
+                hits: game.linescore.h.away,
+                errors: game.linescore.e.away
+              },
+              outs: game.status.o,
+              runners_status: base_situation.ordinal,
+              runner_on_first: base_situation.first,
+              runner_on_second: base_situation.second,
+              runner_on_third: base_situation.third,
+              leverage_index:
+                championship_leverage_index *
+                window.LI[
+                  Math.min(game.status.inning, 9).toString() +
+                    (game.status.top_inning === "Y" ? 1 : 2).toString() +
+                    base_situation.ordinal.toString() +
+                    game.status.o
+                ][
+                  Math.min(
+                    Math.max(
+                      parseInt(game.linescore.r.home) -
+                        parseInt(game.linescore.r.away),
+                      -10
+                    ),
+                    10
+                  )
+                ],
+              pitcher: game.pitcher.first + " " + game.pitcher.last,
+              pitcher_id: game.pitcher.id,
+              atbat: game.batter.first + " " + game.batter.last,
+              atbat_id: game.batter.id,
+              ondeck: game.ondeck.first + " " + game.ondeck.last,
+              ondeck_id: game.ondeck.id,
+              calendar_event_id: get_calendar_event_id(game)
+            });
+          }
+        }
+        Vue.set(this, "games", games);
+        console.log(games);
+      });
     }
   },
   computed: {

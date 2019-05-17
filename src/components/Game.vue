@@ -40,7 +40,8 @@
       </tbody>
     </table>
     <div class="GC-game-info">
-      Leverage Index: {{ leverage_index }}<br />At Bat: {{ atbat }}<br />
+      Leverage Index: {{ leverage_index.toFixed(2) }}<br />Pitching: {{ pitcher
+      }}<br />At Bat: {{ atbat }}<br />
       On Deck: {{ ondeck }}
     </div>
   </div>
@@ -52,15 +53,15 @@ export default {
   props: {
     highlighted: { type: Boolean, default: false },
     half: { type: String, default: "" },
-    inning: { type: Number, default: 1 },
+    inning: { type: String, default: "1" },
     away: { type: Object, default: () => {} },
     home: { type: Object, default: () => {} },
-    outs: { type: Number, default: 0 },
+    outs: { type: String, default: "0" },
     runner_on_first: { type: Boolean, default: false },
     runner_on_second: { type: Boolean, default: false },
     runner_on_third: { type: Boolean, default: false },
     leverage_index: { type: Number, default: 0.0 },
-    pitching: { type: String, default: "" },
+    pitcher: { type: String, default: "" },
     atbat: { type: String, default: "" },
     ondeck: { type: String, default: "" },
     calendar_event_id: { type: String, default: "" }
