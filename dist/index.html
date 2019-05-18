@@ -2,7 +2,82 @@
   <head>
     <title>Vue Hello World</title>
     <script>
-      window.GameSit = [{ display: "Tie game through 5 innings", id: "through5_tie" },
+      
+window.game_status_inds = {
+  I: {
+    description: "In Progress",
+    sort_score: 100,
+    main_display: "linescore",
+    bottom_display: "current"
+  },
+  MC: {
+    description: "",
+    sort_score: 100,
+    main_display: "linescore",
+    bottom_display: "current"
+  },
+  MA: {
+    description: "",
+    sort_score: 100,
+    main_display: "linescore",
+    bottom_display: "current"
+  },
+  MI: {
+    description: "",
+    sort_score: 100,
+    main_display: "linescore",
+    bottom_display: "current"
+  },
+  F: {
+    description: "Final",
+    sort_score: 80,
+    main_display: "linescore",
+    bottom_display: "result"
+  },
+  O: {
+    description: "Game Over",
+    sort_score: 80,
+    main_display: "linescore",
+    bottom_display: "result"
+  },
+  P: {
+    description: "Pregame",
+    sort_score: 70,
+    main_display: "preview",
+    bottom_display: "probables"
+  },
+  PW: {
+    description: "Postponed because of weather",
+    sort_score: 70,
+    main_display: "preview",
+    bottom_display: "none"
+  },
+  S: {
+    description: "Suspended",
+    sort_score: 70,
+    main_display: "preview",
+    bottom_display: "none"
+  },
+  DR: {
+    description: "Game Postponed",
+    sort_score: 60,
+    main_display: "preview",
+    bottom_display: "none"
+  },
+  Delayed: {
+    description: "Delayed",
+    sort_score: 95,
+    main_display: "linescore",
+    bottom_display: "current"
+  },
+  IR: {
+    description: "Injury Delay",
+    sort_score: 90,
+    main_display: "linescore",
+    bottom_display: "none"
+  }
+};
+window.GameSit = [{ display: "Tie game through 5 innings", id: "through5_tie" },
         { display: "Tie game through 6 innings", id: "through6_tie" },
         { display: "Tie game through 7 innings", id: "through7_tie" },
         { display: "Tie game through 8 innings", id: "through8_tie" },
@@ -128,7 +203,7 @@
           location: "San Francisco",
           name: "Giants",
           display: "San Francisco Giants",
-          id: "SFG",
+          id: "SF",
           league: "NL"
         },
         {
@@ -142,7 +217,7 @@
           location: "Washington",
           name: "Nationals",
           display: "Washington Nationals",
-          id: "WSN",
+          id: "WSH",
           league: "NL"
         },
         {
@@ -191,12 +266,12 @@
           location: "Kansas City",
           name: "Royals",
           display: "Kansas City Royals",
-          id: "KCR",
+          id: "KC",
           league: "AL"
         },
         {
           location: "Los Angeles",
-          name: "Angels of Anaheim",
+          name: "Angels",
           display: "Los Angeles Angels of Anaheim",
           id: "LAA",
           league: "AL"

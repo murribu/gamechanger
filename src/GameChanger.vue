@@ -16,6 +16,7 @@
         <Game
           v-for="(game, key) in ordered_filtered_games"
           v-bind="game"
+          :highlighted="game.game_pk === current_game"
           :key="key"
         ></Game>
       </div>
@@ -132,6 +133,19 @@
           * Time between MLB's gamday feed
           <br />
           and MLB.tv broadcast
+        </div>
+        <div class="GC-settings">
+          <h3 class="GC-settings-title">Update Frequency</h3>
+          <select
+            class="form__dropdown-select"
+            id="interval_frequency"
+            name="interval_frequency"
+            v-model="interval_frequency"
+          >
+            <option :value="n" v-for="n in 10">{{ n * 6 }} seconds</option>
+          </select>
+          <br />
+          * How often the games update
         </div>
         <div class="GC-settings">
           <h3 class="GC-settings-title">Video Player</h3>
@@ -252,7 +266,7 @@ import Vue from "vue";
 import Game from "./components/Game.vue";
 import draggable from "vuedraggable";
 import axios from "axios";
-import { get_calendar_event_id, get_base_situation } from "./helpers";
+import { get_base_situation } from "./helpers";
 
 // ***** TODO ***** REMOVE THIS BEFORE RELEASING
 import "./style.css";
@@ -268,10 +282,19 @@ export default {
       delay: 5,
       vid_player: "reg",
       priorities: [{ type: "", object: "", switch_immediately: false }],
-      cur_game_vid: ""
+      cur_game_vid: "",
+      interval: null,
+      interval_frequency: 1 // each unit is 6 seconds
     };
   },
   watch: {
+    interval_frequency: function(val, oldVal) {
+      clearInterval(this.interval);
+      this.interval = setInterval(() => {
+        this.updateGames();
+      }, this.interval_frequency * 6000);
+      localStorage.setItem("interval_frequency", val);
+    },
     ondeck: {
       handler: function(val, oldVal) {
         localStorage.setItem("ondeck", val);
@@ -327,17 +350,14 @@ export default {
     }
   },
   mounted() {
+    let ignoredTeams = [];
+    if (localStorage.getItem("ignoredTeams")) {
+      ignoredTeams = JSON.parse(localStorage.getItem("ignoredTeams"));
+    }
     this.teams = [...window.teams].map(t => {
-      t.ignore = false;
+      t.ignore = ignoredTeams.indexOf(t.id) > -1;
       return t;
     });
-    if (localStorage.getItem("ignoredTeams")) {
-      const ignoredTeams = JSON.parse(localStorage.getItem("ignoredTeams"));
-      for (var team = 0; team < teams.length - 1; team++) {
-        this.teams[team].ignore =
-          ignoredTeams.indexOf(this.teams[team].id) > -1;
-      }
-    }
     if (localStorage.getItem("priorities")) {
       this.priorities = JSON.parse(localStorage.getItem("priorities"));
     }
@@ -353,7 +373,13 @@ export default {
     if (localStorage.getItem("vid_player")) {
       this.vid_player = localStorage.getItem("vid_player");
     }
+    if (localStorage.getItem("interval_frequency")) {
+      this.interval_frequency = localStorage.getItem("interval_frequency");
+    }
     this.updateGames();
+    this.interval = setInterval(() => {
+      this.updateGames();
+    }, this.interval_frequency * 6000);
   },
   methods: {
     ordered_teams_by_league(league) {
@@ -415,9 +441,9 @@ export default {
         day +
         "/master_scoreboard.json?v=" +
         new Date().getTime();
+
       axios.get(url).then(({ data }) => {
         const games_from_mlb = data.data.games.game;
-        const active_statuses = ["I", "MC", "MA", "MI"];
         const active_inning_states = ["Top", "Bottom"];
         console.log(games_from_mlb);
         let games = [];
@@ -427,51 +453,20 @@ export default {
           gameIndex++
         ) {
           const game = games_from_mlb[gameIndex];
-          if (
-            active_statuses.indexOf(game.status.ind) > -1 &&
-            active_inning_states.indexOf(game.status.inning_state) > -1 &&
-            game.status.status !== "Delayed"
-          ) {
-            const game = games_from_mlb[gameIndex];
-            const base_situation = get_base_situation(
-              game.runners_on_base.status
-            );
-            var half_name = game.status.top_inning === "Y" ? "top" : "bottom";
-            var leverage_index = "";
-            const championship_leverage_index =
-              this.include_CLI === "Y"
-                ? window.games_CLI[game.home_name_abbrev]
-                : 1;
-            if (game.status.o === 3) {
-              half_name = half_name === "top" ? "middle" : "end";
-            }
-            games.push({
-              half: half_name,
-              highlighted: get_calendar_event_id(game) === this.cur_game_vid,
-              inning: game.status.inning,
-              home: {
-                name: this.teams.find(t => t.id === game.home_name_abbrev).name,
-                runs: game.linescore.r.home,
-                hits: game.linescore.h.home,
-                errors: game.linescore.e.home
-              },
-              away: {
-                name: this.teams.find(t => t.id === game.away_name_abbrev).name,
-                runs: game.linescore.r.away,
-                hits: game.linescore.h.away,
-                errors: game.linescore.e.away
-              },
-              outs: game.status.o,
-              runners_status: base_situation.ordinal,
-              runner_on_first: base_situation.first,
-              runner_on_second: base_situation.second,
-              runner_on_third: base_situation.third,
-              leverage_index:
-                championship_leverage_index *
+          game.base_situation = get_base_situation(
+            game.runners_on_base ? game.runners_on_base.status : null
+          );
+          const championship_leverage_index =
+            this.include_CLI === "Y"
+              ? window.games_CLI[game.home_name_abbrev]
+              : 1;
+          game.leverage_index =
+            game.status.inning && game.linescore
+              ? championship_leverage_index *
                 window.LI[
                   Math.min(game.status.inning, 9).toString() +
                     (game.status.top_inning === "Y" ? 1 : 2).toString() +
-                    base_situation.ordinal.toString() +
+                    game.base_situation.ordinal.toString() +
                     game.status.o
                 ][
                   Math.min(
@@ -482,20 +477,31 @@ export default {
                     ),
                     10
                   )
-                ],
-              pitcher: game.pitcher.first + " " + game.pitcher.last,
-              pitcher_id: game.pitcher.id,
-              atbat: game.batter.first + " " + game.batter.last,
-              atbat_id: game.batter.id,
-              ondeck: game.ondeck.first + " " + game.ondeck.last,
-              ondeck_id: game.ondeck.id,
-              calendar_event_id: get_calendar_event_id(game)
-            });
-          }
+                ]
+              : 0;
+          game.base_situation = get_base_situation(
+            game.runners_on_base ? game.runners_on_base.status : null
+          );
+          games.push(game);
         }
         Vue.set(this, "games", games);
         console.log(games);
       });
+    },
+    sortGames(game1, game2) {
+      if (
+        window.game_status_inds[game1.status.ind].sort_score ===
+        window.game_status_inds[game2.status.ind].sort_score
+      ) {
+        if (game1.leverage_index && game2.leverage_index) {
+          return game1.leverage_index > game2.leverage_index ? -1 : 1;
+        }
+      } else {
+        return window.game_status_inds[game1.status.ind].sort_score >
+          window.game_status_inds[game2.status.ind].sort_score
+          ? -1
+          : 1;
+      }
     }
   },
   computed: {
@@ -504,8 +510,21 @@ export default {
       return "";
     },
     ordered_filtered_games() {
-      console.log("ordered_filtered_games NOT YET IMPLEMENTED");
-      return this.games;
+      const missed_statuses = this.games.filter(
+        g => typeof window.game_status_inds[g.status.ind] === "undefined"
+      );
+      if (missed_statuses.length > 0) {
+        console.log("MISSED STATUS", missed_statuses);
+      }
+      return this.games
+        .filter(
+          game =>
+            window.game_status_inds[game.status.ind].main_display !==
+              "linescore" ||
+            game.status.inning_state === "Top" ||
+            game.status.inning_state === "Bottom"
+        )
+        .sort(this.sortGames);
     }
   },
   components: { Game, draggable }

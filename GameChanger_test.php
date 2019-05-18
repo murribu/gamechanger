@@ -1527,10 +1527,296 @@ update();
 window.players = <?php echo json_encode($players); ?>;
 window.posPlayers = <?php echo json_encode($posPlayers);?>;
 window.games_CLI = <?php echo json_encode($games_CLI); ?>;
-window.teams = <?php echo json_encode($teams); ?>;
-window.LI = <?php echo json_encode($LI); ?>;
+window.leverage_index_thresholds = <?php echo json_encode($LI); ?>;
+window.LI = <?php echo json_encode($LeverageIndex); ?>;
 window.NoNo = <?php echo json_encode($NoNo); ?>;
 window.GameSit = <?php echo json_encode($GameSit); ?>;
 window.Misc = <?php echo json_encode($Misc); ?>;
+window.teams = [
+    {
+      location: "Arizona",
+      name: "Diamondbacks",
+      display: "Arizona Diamondbacks",
+      id: "ARI",
+      league: "NL"
+    },
+    {
+      location: "Atlanta",
+      name: "Braves",
+      display: "Atlanta Braves",
+      id: "ATL",
+      league: "NL"
+    },
+    {
+      location: "Chicago",
+      name: "Cubs",
+      display: "Chicago Cubs",
+      id: "CHC",
+      league: "NL"
+    },
+    {
+      location: "Cincinnati",
+      name: "Reds",
+      display: "Cincinnati Reds",
+      id: "CIN",
+      league: "NL"
+    },
+    {
+      location: "Colorado",
+      name: "Rockies",
+      display: "Colorado Rockies",
+      id: "COL",
+      league: "NL"
+    },
+    {
+      location: "Los Angeles",
+      name: "Dodgers",
+      display: "Los Angeles Dodgers",
+      id: "LAD",
+      league: "NL"
+    },
+    {
+      location: "Miami",
+      name: "Marlins",
+      display: "Miami Marlins",
+      id: "MIA",
+      league: "NL"
+    },
+    {
+      location: "Milwaukee",
+      name: "Brewers",
+      display: "Milwaukee Brewers",
+      id: "MIL",
+      league: "NL"
+    },
+    {
+      location: "New York",
+      name: "Mets",
+      display: "New York Mets",
+      id: "NYM",
+      league: "NL"
+    },
+    {
+      location: "Philadelphia",
+      name: "Phillies",
+      display: "Philadelphia Phillies",
+      id: "PHI",
+      league: "NL"
+    },
+    {
+      location: "Pittsburgh",
+      name: "Pirates",
+      display: "Pittsburgh Pirates",
+      id: "PIT",
+      league: "NL"
+    },
+    {
+      location: "San Diego",
+      name: "Padres",
+      display: "San Diego Padres",
+      id: "SD",
+      league: "NL"
+    },
+    {
+      location: "San Francisco",
+      name: "Giants",
+      display: "San Francisco Giants",
+      id: "SF",
+      league: "NL"
+    },
+    {
+      location: "St. Louis",
+      name: "Cardinals",
+      display: "St. Louis Cardinals",
+      id: "STL",
+      league: "NL"
+    },
+    {
+      location: "Washington",
+      name: "Nationals",
+      display: "Washington Nationals",
+      id: "WSH",
+      league: "NL"
+    },
+    {
+      location: "Baltimore",
+      name: "Orioles",
+      display: "Baltimore Orioles",
+      id: "BAL",
+      league: "AL"
+    },
+    {
+      location: "Boston",
+      name: "Red Sox",
+      display: "Boston Red Sox",
+      id: "BOS",
+      league: "AL"
+    },
+    {
+      location: "Chicago",
+      name: "White Sox",
+      display: "Chicago White Sox",
+      id: "CWS",
+      league: "AL"
+    },
+    {
+      location: "Cleveland",
+      name: "Indians",
+      display: "Cleveland Indians",
+      id: "CLE",
+      league: "AL"
+    },
+    {
+      location: "Detroit",
+      name: "Tigers",
+      display: "Detroit Tigers",
+      id: "DET",
+      league: "AL"
+    },
+    {
+      location: "Houston",
+      name: "Astros",
+      display: "Houston Astros",
+      id: "HOU",
+      league: "AL"
+    },
+    {
+      location: "Kansas City",
+      name: "Royals",
+      display: "Kansas City Royals",
+      id: "KC",
+      league: "AL"
+    },
+    {
+      location: "Los Angeles",
+      name: "Angels",
+      display: "Los Angeles Angels of Anaheim",
+      id: "LAA",
+      league: "AL"
+    },
+    {
+      location: "Minnesota",
+      name: "Twins",
+      display: "Minnesota Twins",
+      id: "MIN",
+      league: "AL"
+    },
+    {
+      location: "New York",
+      name: "Yankees",
+      display: "New York Yankees",
+      id: "NYY",
+      league: "AL"
+    },
+    {
+      location: "Oakland",
+      name: "Athletics",
+      display: "Oakland Athletics",
+      id: "OAK",
+      league: "AL"
+    },
+    {
+      location: "Seattle",
+      name: "Mariners",
+      display: "Seattle Mariners",
+      id: "SEA",
+      league: "AL"
+    },
+    {
+      location: "Tampa Bay",
+      name: "Rays",
+      display: "Tampa Bay Rays",
+      id: "TB",
+      league: "AL"
+    },
+    {
+      location: "Texas",
+      name: "Rangers",
+      display: "Texas Rangers",
+      id: "TEX",
+      league: "AL"
+    },
+    {
+      location: "Toronto",
+      name: "Blue Jays",
+      display: "Toronto Blue Jays",
+      id: "TOR",
+      league: "AL"
+    }
+  ];
+window.game_status_inds = {
+  I: {
+    description: "In Progress",
+    sort_score: 100,
+    main_display: "linescore",
+    bottom_display: "current"
+  },
+  MC: {
+    description: "",
+    sort_score: 100,
+    main_display: "linescore",
+    bottom_display: "current"
+  },
+  MA: {
+    description: "",
+    sort_score: 100,
+    main_display: "linescore",
+    bottom_display: "current"
+  },
+  MI: {
+    description: "",
+    sort_score: 100,
+    main_display: "linescore",
+    bottom_display: "current"
+  },
+  F: {
+    description: "Final",
+    sort_score: 80,
+    main_display: "linescore",
+    bottom_display: "result"
+  },
+  O: {
+    description: "Game Over",
+    sort_score: 80,
+    main_display: "linescore",
+    bottom_display: "result"
+  },
+  P: {
+    description: "Pregame",
+    sort_score: 70,
+    main_display: "preview",
+    bottom_display: "probables"
+  },
+  PW: {
+    description: "Postponed because of weather",
+    sort_score: 70,
+    main_display: "preview",
+    bottom_display: "none"
+  },
+  S: {
+    description: "Suspended",
+    sort_score: 70,
+    main_display: "preview",
+    bottom_display: "none"
+  },
+  DR: {
+    description: "Game Postponed",
+    sort_score: 60,
+    main_display: "preview",
+    bottom_display: "none"
+  },
+  Delayed: {
+    description: "Delayed",
+    sort_score: 95,
+    main_display: "linescore",
+    bottom_display: "current"
+  },
+  IR: {
+    description: "Injury Delay",
+    sort_score: 90,
+    main_display: "linescore",
+    bottom_display: "none"
+  }
+};
 </script>
 <script src="/gamechanger.js"></script>
