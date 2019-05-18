@@ -8,73 +8,92 @@ window.game_status_inds = {
     description: "In Progress",
     sort_score: 100,
     main_display: "linescore",
-    bottom_display: "current"
+    bottom_display: "current",
+    challenge: false
   },
   MC: {
     description: "",
     sort_score: 100,
     main_display: "linescore",
-    bottom_display: "current"
+    bottom_display: "current",
+    challenge: true
   },
   MA: {
     description: "",
     sort_score: 100,
     main_display: "linescore",
-    bottom_display: "current"
+    bottom_display: "current",
+    challenge: true
   },
   MI: {
     description: "",
     sort_score: 100,
     main_display: "linescore",
-    bottom_display: "current"
+    bottom_display: "current",
+    challenge: true
+  },
+  MF: {
+    description: "Manager Challenge: Close play at 1st",
+    sort_score: 100,
+    main_display: "linescore",
+    bottom_display: "current",
+    challenge: true
   },
   F: {
     description: "Final",
     sort_score: 80,
-    main_display: "linescore",
-    bottom_display: "result"
+    main_display: "final",
+    bottom_display: "result",
+    challenge: false
   },
   O: {
     description: "Game Over",
     sort_score: 80,
-    main_display: "linescore",
-    bottom_display: "result"
+    main_display: "final",
+    bottom_display: "result",
+    challenge: false
   },
   P: {
     description: "Pregame",
     sort_score: 70,
     main_display: "preview",
-    bottom_display: "probables"
+    bottom_display: "probables",
+    challenge: false
   },
   PW: {
     description: "Postponed because of weather",
     sort_score: 70,
     main_display: "preview",
-    bottom_display: "none"
+    bottom_display: "none",
+    challenge: false
   },
   S: {
     description: "Suspended",
     sort_score: 70,
     main_display: "preview",
-    bottom_display: "none"
+    bottom_display: "none",
+    challenge: false
   },
   DR: {
     description: "Game Postponed",
     sort_score: 60,
     main_display: "preview",
-    bottom_display: "none"
+    bottom_display: "none",
+    challenge: false
   },
   Delayed: {
     description: "Delayed",
     sort_score: 95,
     main_display: "linescore",
-    bottom_display: "current"
+    bottom_display: "current",
+    challenge: false
   },
   IR: {
     description: "Injury Delay",
     sort_score: 90,
     main_display: "linescore",
-    bottom_display: "none"
+    bottom_display: "none",
+    challenge: false
   }
 };
 window.GameSit = [{ display: "Tie game through 5 innings", id: "through5_tie" },
@@ -115,217 +134,247 @@ window.GameSit = [{ display: "Tie game through 5 innings", id: "through5_tie" },
         { display: ">= 0.5", id: 0.5 },
         { display: ">= 0.0", id: 0 }];
       window.teams = [
-        {
-          location: "Arizona",
-          name: "Diamondbacks",
-          display: "Arizona Diamondbacks",
-          id: "ARI",
-          league: "NL"
-        },
-        {
-          location: "Atlanta",
-          name: "Braves",
-          display: "Atlanta Braves",
-          id: "ATL",
-          league: "NL"
-        },
-        {
-          location: "Chicago",
-          name: "Cubs",
-          display: "Chicago Cubs",
-          id: "CHC",
-          league: "NL"
-        },
-        {
-          location: "Cincinnati",
-          name: "Reds",
-          display: "Cincinnati Reds",
-          id: "CIN",
-          league: "NL"
-        },
-        {
-          location: "Colorado",
-          name: "Rockies",
-          display: "Colorado Rockies",
-          id: "COL",
-          league: "NL"
-        },
-        {
-          location: "Los Angeles",
-          name: "Dodgers",
-          display: "Los Angeles Dodgers",
-          id: "LAD",
-          league: "NL"
-        },
-        {
-          location: "Miami",
-          name: "Marlins",
-          display: "Miami Marlins",
-          id: "MIA",
-          league: "NL"
-        },
-        {
-          location: "Milwaukee",
-          name: "Brewers",
-          display: "Milwaukee Brewers",
-          id: "MIL",
-          league: "NL"
-        },
-        {
-          location: "New York",
-          name: "Mets",
-          display: "New York Mets",
-          id: "NYM",
-          league: "NL"
-        },
-        {
-          location: "Philadelphia",
-          name: "Phillies",
-          display: "Philadelphia Phillies",
-          id: "PHI",
-          league: "NL"
-        },
-        {
-          location: "Pittsburgh",
-          name: "Pirates",
-          display: "Pittsburgh Pirates",
-          id: "PIT",
-          league: "NL"
-        },
-        {
-          location: "San Diego",
-          name: "Padres",
-          display: "San Diego Padres",
-          id: "SD",
-          league: "NL"
-        },
-        {
-          location: "San Francisco",
-          name: "Giants",
-          display: "San Francisco Giants",
-          id: "SF",
-          league: "NL"
-        },
-        {
-          location: "St. Louis",
-          name: "Cardinals",
-          display: "St. Louis Cardinals",
-          id: "STL",
-          league: "NL"
-        },
-        {
-          location: "Washington",
-          name: "Nationals",
-          display: "Washington Nationals",
-          id: "WSH",
-          league: "NL"
-        },
-        {
-          location: "Baltimore",
-          name: "Orioles",
-          display: "Baltimore Orioles",
-          id: "BAL",
-          league: "AL"
-        },
-        {
-          location: "Boston",
-          name: "Red Sox",
-          display: "Boston Red Sox",
-          id: "BOS",
-          league: "AL"
-        },
-        {
-          location: "Chicago",
-          name: "White Sox",
-          display: "Chicago White Sox",
-          id: "CWS",
-          league: "AL"
-        },
-        {
-          location: "Cleveland",
-          name: "Indians",
-          display: "Cleveland Indians",
-          id: "CLE",
-          league: "AL"
-        },
-        {
-          location: "Detroit",
-          name: "Tigers",
-          display: "Detroit Tigers",
-          id: "DET",
-          league: "AL"
-        },
-        {
-          location: "Houston",
-          name: "Astros",
-          display: "Houston Astros",
-          id: "HOU",
-          league: "AL"
-        },
-        {
-          location: "Kansas City",
-          name: "Royals",
-          display: "Kansas City Royals",
-          id: "KC",
-          league: "AL"
-        },
-        {
-          location: "Los Angeles",
-          name: "Angels",
-          display: "Los Angeles Angels of Anaheim",
-          id: "LAA",
-          league: "AL"
-        },
-        {
-          location: "Minnesota",
-          name: "Twins",
-          display: "Minnesota Twins",
-          id: "MIN",
-          league: "AL"
-        },
-        {
-          location: "New York",
-          name: "Yankees",
-          display: "New York Yankees",
-          id: "NYY",
-          league: "AL"
-        },
-        {
-          location: "Oakland",
-          name: "Athletics",
-          display: "Oakland Athletics",
-          id: "OAK",
-          league: "AL"
-        },
-        {
-          location: "Seattle",
-          name: "Mariners",
-          display: "Seattle Mariners",
-          id: "SEA",
-          league: "AL"
-        },
-        {
-          location: "Tampa Bay",
-          name: "Rays",
-          display: "Tampa Bay Rays",
-          id: "TB",
-          league: "AL"
-        },
-        {
-          location: "Texas",
-          name: "Rangers",
-          display: "Texas Rangers",
-          id: "TEX",
-          league: "AL"
-        },
-        {
-          location: "Toronto",
-          name: "Blue Jays",
-          display: "Toronto Blue Jays",
-          id: "TOR",
-          league: "AL"
-        }
-      ];
+		{
+			location: "Arizona",
+			name: "Diamondbacks",
+			display: "Arizona Diamondbacks",
+			id: 109,
+			league: "NL",
+			tbg_abbr: "ARI"
+		},
+		{
+			location: "Atlanta",
+			name: "Braves",
+			display: "Atlanta Braves",
+			id: 144,
+			league: "NL",
+			tbg_abbr: "ATL"
+		},
+		{
+			location: "Chicago",
+			name: "Cubs",
+			display: "Chicago Cubs",
+			id: 112,
+			league: "NL",
+			tbg_abbr: "CHC"
+		},
+		{
+			location: "Cincinnati",
+			name: "Reds",
+			display: "Cincinnati Reds",
+			id: 113,
+			league: "NL",
+			tbg_abbr: "CIN"
+		},
+		{
+			location: "Colorado",
+			name: "Rockies",
+			display: "Colorado Rockies",
+			id: 115,
+			league: "NL",
+			tbg_abbr: "COL"
+		},
+		{
+			location: "Los Angeles",
+			name: "Dodgers",
+			display: "Los Angeles Dodgers",
+			id: 119,
+			league: "NL",
+			tbg_abbr: "LAD"
+		},
+		{
+			location: "Miami",
+			name: "Marlins",
+			display: "Miami Marlins",
+			id: 146,
+			league: "NL",
+			tbg_abbr: "MIA"
+		},
+		{
+			location: "Milwaukee",
+			name: "Brewers",
+			display: "Milwaukee Brewers",
+			id: 158,
+			league: "NL",
+			tbg_abbr: "MIL"
+		},
+		{
+			location: "New York",
+			name: "Mets",
+			display: "New York Mets",
+			id: 121,
+			league: "NL",
+			tbg_abbr: "NYM"
+		},
+		{
+			location: "Philadelphia",
+			name: "Phillies",
+			display: "Philadelphia Phillies",
+			id: 143,
+			league: "NL",
+			tbg_abbr: "PHI"
+		},
+		{
+			location: "Pittsburgh",
+			name: "Pirates",
+			display: "Pittsburgh Pirates",
+			id: 134,
+			league: "NL",
+			tbg_abbr: "PIT"
+		},
+		{
+			location: "San Diego",
+			name: "Padres",
+			display: "San Diego Padres",
+			id: 135,
+			league: "NL",
+			tbg_abbr: "SD"
+		},
+		{
+			location: "San Francisco",
+			name: "Giants",
+			display: "San Francisco Giants",
+			id: 137,
+			league: "NL",
+			tbg_abbr: "SF"
+		},
+		{
+			location: "St. Louis",
+			name: "Cardinals",
+			display: "St. Louis Cardinals",
+			id: 138,
+			league: "NL",
+			tbg_abbr: "STL"
+		},
+		{
+			location: "Washington",
+			name: "Nationals",
+			display: "Washington Nationals",
+			id: 120,
+			league: "NL",
+			tbg_abbr: "WSH"
+		},
+		{
+			location: "Baltimore",
+			name: "Orioles",
+			display: "Baltimore Orioles",
+			id: 110,
+			league: "AL",
+			tbg_abbr: "BAL"
+		},
+		{
+			location: "Boston",
+			name: "Red Sox",
+			display: "Boston Red Sox",
+			id: 111,
+			league: "AL",
+			tbg_abbr: "BOS"
+		},
+		{
+			location: "Chicago",
+			name: "White Sox",
+			display: "Chicago White Sox",
+			id: 145,
+			league: "AL",
+			tbg_abbr: "CWS"
+		},
+		{
+			location: "Cleveland",
+			name: "Indians",
+			display: "Cleveland Indians",
+			id: 114,
+			league: "AL",
+			tbg_abbr: "CLE"
+		},
+		{
+			location: "Detroit",
+			name: "Tigers",
+			display: "Detroit Tigers",
+			id: 116,
+			league: "AL",
+			tbg_abbr: "DET"
+		},
+		{
+			location: "Houston",
+			name: "Astros",
+			display: "Houston Astros",
+			id: 117,
+			league: "AL",
+			tbg_abbr: "HOU"
+		},
+		{
+			location: "Kansas City",
+			name: "Royals",
+			display: "Kansas City Royals",
+			id: 118,
+			league: "AL",
+			tbg_abbr: "KC"
+		},
+		{
+			location: "Los Angeles",
+			name: "Angels",
+			display: "Los Angeles Angels of Anaheim",
+			id: 108,
+			league: "AL",
+			tbg_abbr: "LAA"
+		},
+		{
+			location: "Minnesota",
+			name: "Twins",
+			display: "Minnesota Twins",
+			id: 142,
+			league: "AL",
+			tbg_abbr: "MIN"
+		},
+		{
+			location: "New York",
+			name: "Yankees",
+			display: "New York Yankees",
+			id: 147,
+			league: "AL",
+			tbg_abbr: "NYY"
+		},
+		{
+			location: "Oakland",
+			name: "Athletics",
+			display: "Oakland Athletics",
+			id: 133,
+			league: "AL",
+			tbg_abbr: "OAK"
+		},
+		{
+			location: "Seattle",
+			name: "Mariners",
+			display: "Seattle Mariners",
+			id: 136,
+			league: "AL",
+			tbg_abbr: "SEA"
+		},
+		{
+			location: "Tampa Bay",
+			name: "Rays",
+			display: "Tampa Bay Rays",
+			id: 139,
+			league: "AL",
+			tbg_abbr: "TB"
+		},
+		{
+			location: "Texas",
+			name: "Rangers",
+			display: "Texas Rangers",
+			id: 140,
+			league: "AL",
+			tbg_abbr: "TEX"
+		},
+		{
+			location: "Toronto",
+			name: "Blue Jays",
+			display: "Toronto Blue Jays",
+			id: 141,
+			league: "AL",
+			tbg_abbr: "TOR"
+		}
+	];
       window.posPlayers = {"547989":"PosP","660670":"PosP","592094":"P","642715":"PosP","613534":"P","664856":"P","572669":"PosP","571431":"PosP","451192":"PosP","501303":"PosP","542583":"PosP","605113":"PosP","595798":"P","458006":"P","593643":"PosP","645277":"PosP","645261":"P","622505":"P","518397":"P","595751":"PosP","546990":"PosP","663465":"P","664119":"PosP","592102":"P","656185":"PosP","501659":"PosP","602083":"P","622075":"P","546991":"PosP","624413":"PosP","475174":"PosP","656186":"P","571437":"PosP","514888":"PosP","621237":"P","501625":"P","476883":"PosP","474463":"P","605119":"PosP","502624":"P","594736":"P","623454":"P","605121":"P","623433":"P","664196":"P","641313":"PosP","542881":"P","607430":"PosP","542882":"P","462101":"PosP","609280":"PosP","606157":"PosP","644364":"P","606478":"P","502042":"P","516472":"PosP","606115":"PosP","571448":"PosP","542888":"P","453562":"P","624414":"PosP","594742":"P","553902":"PosP","641319":"PosP","592122":"PosP","623214":"PosP","488671":"PosP","658648":"P","501593":"P","446099":"P","664056":"PosP","595879":"PosP","520980":"P","622783":"P","456701":"P","607455":"P","542908":"PosP","544365":"P","592127":"P","572703":"P","605130":"P","605131":"PosP","488681":"PosP","592130":"P","606930":"P","598264":"P","501817":"P","571466":"PosP","571467":"PosP","607457":"P","620439":"PosP","545332":"P","642545":"P","641341":"P","542914":"P","605135":"P","545333":"P","641343":"PosP","571473":"P","639373":"P","430832":"PosP","622441":"PosP","607461":"PosP","571476":"P","493596":"PosP","542921":"PosP","592135":"P","595881":"P","656222":"P","279571":"P","542924":"P","518445":"P","605137":"PosP","641355":"PosP","474832":"PosP","134181":"PosP","621532":"PosP","643217":"PosP","664157":"P","548357":"P","621244":"P","542932":"PosP","476454":"P","518452":"P","605141":"PosP","607352":"P","502212":"P","592145":"P","669456":"P","595885":"PosP","613317":"P","623323":"PosP","621389":"P","605143":"P","621112":"P","453568":"PosP","453923":"PosP","607468":"PosP","518466":"PosP","542946":"P","542947":"P","460283":"P","593428":"PosP","621450":"PosP","593528":"PosP","621366":"P","607471":"PosP","623520":"PosP","571506":"PosP","488721":"PosP","621199":"P","502202":"P","571510":"P","430641":"P","542960":"P","611093":"P","607473":"P","605151":"P","598265":"PosP","488726":"PosP","518489":"P","643230":"P","460075":"PosP","605154":"P","608324":"PosP","592165":"P","605155":"P","592169":"P","593993":"PosP","592170":"P","656257":"P","621446":"PosP","593647":"PosP","502154":"P","605156":"P","571521":"P","542979":"PosP","457803":"PosP","592178":"PosP","453329":"P","488748":"P","621111":"P","518516":"P","607481":"P","605164":"P","595897":"P","669203":"P","621114":"P","641427":"P","456713":"P","460077":"PosP","576788":"PosP","572750":"P","621142":"P","621439":"PosP","452678":"PosP","466320":"PosP","408234":"PosP","502239":"P","456715":"PosP","594777":"PosP","641432":"PosP","622666":"PosP","600869":"PosP","592192":"PosP","656288":"P","429664":"PosP","605170":"PosP","641438":"P","572761":"PosP","543001":"P","471911":"P","606944":"P","592200":"PosP","488768":"P","433586":"P","592206":"PosP","650895":"P","620454":"P","622491":"P","456078":"PosP","593495":"PosP","605612":"PosP","488771":"PosP","612434":"P","516770":"PosP","595909":"PosP","446399":"P","458584":"P","518542":"PosP","465041":"PosP","493316":"PosP","570666":"P","468504":"P","605177":"P","547973":"P","656305":"PosP","608638":"P","543022":"P","445926":"P","656308":"PosP","612672":"P","455139":"PosP","630023":"P","502082":"PosP","596847":"PosP","425783":"PosP","643256":"P","571561":"P","518553":"P","624419":"PosP","664199":"P","592222":"P","605182":"P","461325":"P","543031":"P","502171":"P","595918":"P","543037":"P","518566":"P","488786":"P","525768":"P","517008":"P","112526":"P","624424":"PosP","543045":"P","664869":"P","575929":"PosP","475857":"P","643265":"PosP","571577":"P","571578":"P","542289":"P","641477":"PosP","614173":"PosP","622772":"P","621043":"PosP","641482":"P","543056":"P","592229":"P","592230":"PosP","446359":"PosP","622226":"PosP","543063":"PosP","641487":"PosP","605195":"P","641490":"P","543068":"PosP","443558":"PosP","462480":"P","488810":"PosP","456501":"P","571595":"PosP","571035":"P","518586":"PosP","592238":"P","657205":"P","595928":"P","596144":"PosP","488818":"PosP","518595":"PosP","621311":"PosP","641501":"P","506433":"P","571602":"PosP","605200":"P","656354":"P","448801":"PosP","605204":"PosP","641505":"PosP","501981":"PosP","434658":"PosP","543089":"PosP","451584":"P","594795":"P","602074":"PosP","608328":"P","407822":"P","660853":"P","621573":"PosP","657209":"P","594798":"P","657557":"PosP","517414":"P","547170":"PosP","544925":"PosP","518614":"PosP","543101":"P","592261":"PosP","435622":"PosP","628333":"P","446321":"P","606965":"P","646240":"PosP","649557":"PosP","621242":"P","553869":"PosP","622766":"P","650490":"PosP","543105":"PosP","572816":"PosP","518617":"P","518618":"PosP","594694":"PosP","641525":"PosP","622554":"P","518626":"PosP","448281":"P","664871":"P","572821":"PosP","641531":"PosP","543118":"P","592273":"PosP","446263":"PosP","488846":"P","608648":"P","518633":"P","622110":"PosP","621453":"PosP","435043":"P","623430":"P","445197":"P","641541":"P","657566":"P","594807":"PosP","502481":"PosP","473879":"P","594809":"PosP","605218":"P","457754":"P","621107":"P","595191":"P","606273":"P","454560":"PosP","595939":"P","518653":"PosP","429665":"PosP","641553":"PosP","543135":"P","572362":"P","640447":"PosP","444876":"PosP","500871":"PosP","608032":"P","462136":"P","642731":"PosP","595943":"PosP","544727":"P","607188":"P","571656":"P","571657":"PosP","543144":"P","608652":"P","607200":"P","543148":"PosP","593140":"P","657571":"P","622774":"P","628336":"PosP","670036":"P","608654":"PosP","451661":"P","571666":"P","641571":"P","605232":"P","605233":"PosP","450729":"P","656427":"P","475247":"PosP","664058":"PosP","623167":"P","527038":"PosP","465753":"PosP","571670":"P","452095":"PosP","543169":"P","592314":"P","521655":"P","545337":"PosP","645801":"PosP","523253":"PosP","451594":"PosP","641583":"PosP","664034":"PosP","596748":"PosP","545338":"PosP","621350":"P","624428":"PosP","640449":"PosP","453943":"PosP","607536":"P","518692":"PosP","502273":"PosP","518693":"P","501896":"PosP","571679":"PosP","608331":"P","605240":"P","643316":"P","658069":"PosP","608334":"P","605242":"P","543193":"P","502570":"PosP","595956":"PosP","451596":"P","606149":"P","608336":"PosP","543194":"PosP","520471":"PosP","592325":"PosP","607231":"P","666969":"PosP","605244":"PosP","541645":"PosP","658305":"P","594824":"PosP","448802":"P","606424":"P","544725":"PosP","472610":"P","554340":"P","643320":"P","458731":"PosP","572863":"PosP","607237":"P","657585":"P","641598":"PosP","594828":"PosP","592332":"P","543208":"P","518715":"P","571697":"PosP","502226":"PosP","595222":"PosP","593334":"P","502043":"P","571704":"P","543219":"P","460269":"PosP","608337":"P","571710":"P","607192":"P","606983":"P","643327":"P","592340":"P","627894":"P","572365":"PosP","502671":"PosP","596295":"P","543228":"PosP","460576":"PosP","491646":"P","622497":"PosP","596816":"P","624427":"P","594835":"P","408236":"PosP","554054":"PosP","471865":"PosP","570481":"PosP","461829":"P","503556":"PosP","642571":"P","456068":"P","592348":"PosP","571718":"PosP","580792":"P","460086":"PosP","543829":"PosP","605253":"PosP","594838":"PosP","605254":"P","641627":"P","594840":"P","518735":"PosP","434158":"PosP","492802":"PosP","608665":"P","605255":"P","592351":"P","543243":"P","643338":"P","572888":"P","502381":"P","544369":"PosP","606988":"PosP","425844":"P","545341":"PosP","518748":"P","543257":"PosP","607229":"P","594056":"P","642770":"PosP","457915":"P","448855":"P","602115":"PosP","594027":"P","665489":"PosP","605260":"P","641645":"PosP","543258":"P","493329":"PosP","666971":"PosP","642721":"PosP","446386":"PosP","608597":"PosP","576397":"PosP","606992":"PosP","623352":"P","571735":"P","595234":"P","664180":"P","430935":"P","571740":"PosP","641656":"P","434628":"P","641658":"PosP","606995":"P","543272":"P","621098":"P","571745":"PosP","593700":"PosP","664023":"PosP","457918":"P","543278":"P","547180":"PosP","607560":"P","501789":"P","543281":"PosP","643354":"P","642840":"P","518774":"P","501822":"P","623434":"P","452104":"PosP","592387":"PosP","571760":"P","621368":"P","588751":"PosP","595978":"PosP","476451":"P","664854":"P","592390":"P","543294":"P","521230":"P","628338":"PosP","641684":"PosP","514917":"PosP","650382":"P","456696":"P","622694":"P","571771":"PosP","433587":"P","491676":"PosP","606192":"PosP","599096":"PosP","516969":"P","546318":"PosP","594011":"PosP","543302":"PosP","605276":"P","518792":"PosP","543305":"PosP","543308":"PosP","663855":"P","543309":"PosP","657610":"P","448179":"P","657612":"P","673633":"P","656546":"P","592407":"PosP","656547":"P","502706":"P","518813":"P","407812":"PosP","605280":"P","571788":"PosP","543331":"P","656555":"PosP","543333":"PosP","605288":"P","607572":"P","624586":"P","629496":"P","658791":"P","641712":"P","543339":"P","621529":"PosP","453172":"P","461833":"P","460026":"PosP","488984":"P","571800":"P","455104":"PosP","578428":"PosP","628452":"P","542255":"PosP","500872":"P","608344":"P","656577":"PosP","457706":"PosP","623515":"PosP","429719":"P","543351":"P","592426":"P","657624":"P","608671":"PosP","643376":"PosP","445276":"P","445055":"PosP","502026":"P","543359":"P","448178":"P","605301":"P","657228":"P","621592":"P","650391":"PosP","641729":"P","656582":"PosP","598271":"P","597113":"P","462382":"P","572955":"P","582473":"PosP","430945":"PosP","592444":"PosP","518858":"P","624507":"PosP","543376":"PosP","543377":"PosP","459964":"PosP","592450":"PosP","596001":"P","642558":"P","664842":"PosP","592454":"P","628356":"PosP","501992":"P","605309":"P","641745":"P","518875":"P","608348":"PosP","543391":"P","523260":"P","518876":"P","571841":"PosP","461314":"PosP","643393":"PosP","435062":"PosP","664028":"P","453178":"P","596146":"PosP","477132":"P","572971":"P","666198":"PosP","571851":"PosP","518883":"P","595281":"PosP","579328":"P","518886":"P","643396":"PosP","664068":"PosP","592468":"P","641755":"P","435079":"PosP","445213":"P","543401":"PosP","552640":"P","623182":"PosP","571858":"P","446372":"P","595284":"PosP","608349":"P","571863":"P","592473":"P","502004":"P","656629":"P","518902":"PosP","596012":"PosP","456124":"PosP","607216":"P","571871":"P","641771":"P","600303":"PosP","501571":"PosP","664042":"P","534606":"PosP","571875":"PosP","543424":"P","641778":"P","657656":"PosP","543432":"PosP","571882":"P","596271":"P","502190":"P","453281":"P","600917":"P","657658":"PosP","643410":"P","518934":"PosP","506702":"PosP","608678":"P","452657":"P","592499":"P","571893":"P","624407":"PosP","596019":"PosP","434538":"P","641793":"P","594902":"P","642528":"P","446653":"PosP","641796":"PosP","621141":"P","457429":"P","643418":"PosP","446334":"PosP","605347":"P","641154":"P","607257":"PosP","625643":"P","661255":"P","547179":"P","571901":"P","663992":"P","664040":"PosP","663993":"PosP","476704":"PosP","572998":"P","664192":"P","672773":"P","518960":"PosP","608475":"PosP","607625":"P","656669":"PosP","543475":"P","458681":"P","544928":"P","553988":"PosP","592518":"PosP","425492":"P","628317":"P","543483":"P","641816":"P","543484":"PosP","571912":"PosP","628318":"P","455117":"PosP","640455":"P","641820":"PosP","448167":"P","596027":"P","676606":"P","622534":"PosP","501697":"P","545350":"PosP","605357":"PosP","455976":"PosP","571917":"P","608566":"P","571918":"PosP","605359":"P","527043":"PosP","606466":"PosP","516782":"PosP","656685":"P","455119":"P","656686":"P","641829":"PosP","547982":"PosP","621006":"PosP","431145":"PosP","593372":"P","502110":"PosP","500874":"PosP","400121":"PosP","605361":"PosP","425772":"PosP","664208":"P","571927":"P","408045":"PosP","543506":"P","622194":"PosP","543507":"P","457727":"PosP","594577":"P","641835":"P","608577":"PosP","543508":"P","502083":"P","435263":"PosP","543510":"PosP","435221":"P","641838":"P","607030":"P","621121":"P","457705":"PosP","519008":"P","459429":"P","641851":"P","657681":"P","592547":"P","624512":"PosP","543521":"P","641856":"PosP","641857":"PosP","643446":"PosP","656725":"P","640457":"PosP","607644":"P","450665":"P","664682":"P","606167":"P","642336":"PosP","453343":"P","622492":"P","622795":"P","596043":"P","474568":"PosP","593160":"PosP","519023":"PosP","656738":"P","641871":"P","571945":"P","489119":"P","453192":"P","543543":"PosP","502522":"P","571946":"P","621219":"P","571948":"P","543548":"P","573668":"P","501985":"P","621345":"P","664641":"P","571951":"P","425877":"PosP","660162":"PosP","609275":"PosP","593423":"P","471083":"PosP","656756":"P","543557":"P","446192":"PosP","664238":"PosP","519043":"P","434778":"PosP","591672":"P","592567":"PosP","519048":"PosP","605388":"P","573046":"P","621559":"PosP","606625":"P","592570":"P","489149":"PosP","453344":"P","450203":"P","600301":"PosP","519058":"PosP","622382":"P","493247":"P","656775":"PosP","571970":"PosP","622168":"PosP","502517":"PosP","571974":"PosP","608596":"PosP","643466":"P","605397":"P","571976":"PosP","571980":"PosP","553882":"PosP","519068":"PosP","594943":"P","502117":"PosP","593576":"P","450212":"P","596720":"P","623470":"P","656794":"P","621028":"PosP","547912":"PosP","504379":"P","621512":"PosP","607043":"PosP","656798":"P","605400":"P","669738":"PosP","502032":"P","596057":"P","656803":"P","641924":"PosP","467100":"P","456488":"PosP","600524":"PosP","573064":"P","598284":"PosP","503285":"P","622217":"P","656811":"PosP","641933":"PosP","594951":"P","656805":"P","623184":"P","596059":"PosP","543606":"P","468396":"P","493200":"P","660271":"P","595345":"P","621566":"PosP","621397":"P","644337":"PosP","449181":"PosP","542364":"PosP","656814":"P","592612":"P","591741":"PosP","532077":"P","621261":"P","519096":"P","493603":"P","572008":"PosP","542303":"PosP","663978":"P","641941":"P","594953":"PosP","605412":"PosP","623381":"P","622161":"P","487675":"P","453284":"P","467827":"PosP","641149":"P","600944":"P","572020":"P","572021":"P","502748":"P","456665":"PosP","592626":"PosP","456030":"PosP","641962":"P","570240":"P","506747":"PosP","452254":"PosP","460060":"PosP","444482":"PosP","642547":"P","593974":"P","503449":"P","606299":"PosP","606131":"P","542208":"PosP","672335":"P","541650":"PosP","527048":"P","605421":"PosP","424144":"P","547379":"PosP","521692":"PosP","596071":"P","640460":"PosP","607054":"PosP","623402":"P","463610":"PosP","433589":"P","502593":"P","502054":"PosP","572033":"PosP","408252":"PosP","621433":"PosP","623465":"P","607680":"PosP","444489":"PosP","640461":"PosP","501381":"P","517369":"PosP","572039":"PosP","601713":"P","608700":"PosP","461858":"PosP","592644":"P","570256":"PosP","593871":"PosP","572041":"PosP","519141":"P","592647":"PosP","594965":"P","519144":"P","457763":"PosP","572044":"P","621471":"PosP","596074":"P","445988":"PosP","519151":"P","456034":"P","595777":"PosP","643493":"P","624577":"PosP","405395":"PosP","534812":"P","615698":"P","650671":"P","596451":"PosP","500779":"P","663432":"P","570702":"P","541640":"P","434670":"PosP","623912":"PosP","500724":"P","608070":"PosP","542432":"P","519166":"P","598286":"P","598287":"P","606162":"P","573109":"P","591693":"P","467092":"PosP","543677":"P","458675":"PosP","502051":"P","592662":"P","592663":"PosP","502210":"PosP","607223":"PosP","592665":"P","642003":"P","605439":"PosP","608701":"PosP","656887":"P","595373":"PosP","643617":"P","573113":"PosP","543685":"PosP","592669":"PosP","650859":"PosP","621052":"P","614177":"PosP","622103":"P","660875":"P","408314":"PosP","622569":"PosP","622682":"PosP","668804":"PosP","448602":"PosP","608703":"PosP","642008":"P","453385":"P","572070":"P","670950":"P","572073":"PosP","595375":"PosP","605441":"P","425784":"PosP","592680":"PosP","553878":"P","519203":"PosP","543699":"P","621002":"PosP","502085":"P","592685":"PosP","453203":"PosP","570663":"P","645302":"PosP","407845":"P","607074":"P","605446":"P","593958":"P","622446":"P","600965":"P","593144":"P","500135":"PosP","446481":"PosP","475054":"P","642028":"P","573124":"P","500743":"PosP","607219":"P","544836":"P","622864":"P","461865":"PosP","519222":"PosP","489265":"P","541652":"P","444468":"P","602922":"PosP","489267":"PosP","642708":"PosP","592696":"PosP","600968":"P","572096":"P","605452":"P","475115":"P","573127":"P","635903":"P","607387":"PosP","607968":"P","614179":"P","547004":"PosP","592705":"P","543734":"P","608365":"PosP","594986":"P","547943":"P","519240":"P","282332":"P","594987":"P","592712":"P","573135":"PosP","477569":"P","519242":"P","457454":"PosP","502188":"P","592716":"P","592717":"P","506703":"PosP","434671":"P","570560":"PosP","596142":"PosP","467055":"PosP","593934":"PosP","467793":"PosP","542454":"PosP","642701":"P","570267":"PosP","650828":"P","429722":"P","623993":"PosP","502327":"P","608601":"P","596143":"PosP","599683":"P","543746":"P","594988":"PosP","453286":"P","572114":"PosP","570731":"PosP","621289":"P","656941":"PosP","643524":"PosP","582494":"P","656945":"P","644428":"P","608369":"PosP","572122":"PosP","516416":"PosP","543760":"PosP","622608":"P","669222":"PosP","622663":"P","600474":"PosP","623149":"P","594992":"P","596101":"P","543766":"P","622046":"PosP","543768":"PosP","656954":"P","642073":"P","595411":"P","448306":"P","640463":"P","533167":"P","592741":"P","543776":"PosP","642423":"PosP","501213":"PosP","592743":"PosP","608371":"P","448609":"P","642082":"PosP","572140":"P","607215":"P","605474":"PosP","596103":"PosP","642083":"P","572143":"P","592761":"P","605476":"P","642086":"PosP","622098":"P","501925":"P","595001":"P","607345":"PosP","605480":"PosP","573166":"P","519293":"P","596105":"PosP","475253":"PosP","519294":"P","519295":"PosP","592767":"P","605483":"P","592769":"P","474319":"PosP","656977":"P","462515":"P","519299":"PosP","456781":"PosP","500208":"PosP","624585":"PosP","519301":"P","465657":"P","647336":"P","624641":"PosP","642397":"P","665742":"PosP","519306":"PosP","452655":"PosP","605486":"PosP","642098":"P","543807":"PosP","605488":"P","607732":"PosP","608715":"PosP","489334":"P","592773":"P","519317":"PosP","545358":"PosP","608716":"P","623451":"P","596112":"P","664057":"PosP","592779":"P","455755":"PosP","621514":"PosP","621466":"PosP","640464":"P","476594":"P","596115":"PosP","657770":"P","621381":"P","573185":"P","544931":"P","608717":"P","664702":"PosP","519326":"P","548389":"P","573186":"P","467008":"P","621385":"P","605498":"P","553993":"PosP","624133":"P","491696":"PosP","593833":"P","572180":"PosP","608718":"P","400085":"PosP","435559":"PosP","621020":"PosP","657024":"P","461872":"P","572182":"PosP","596119":"PosP","592789":"P","519333":"PosP","592791":"P","547888":"P","606132":"PosP","605501":"P","665487":"PosP","643565":"PosP","607333":"PosP","664701":"P","621035":"PosP","572191":"PosP","547749":"P","527054":"P","542513":"PosP","642133":"PosP","572193":"P","519346":"PosP","657041":"PosP","622097":"P","572204":"PosP","592804":"P","663423":"P","501957":"P","605508":"PosP","624636":"PosP","592808":"PosP","458708":"P","605509":"PosP","448614":"P","650402":"PosP","593527":"PosP","591720":"PosP","657053":"P","664167":"PosP","581527":"PosP","607752":"PosP","595014":"P","624431":"PosP","592811":"P","642152":"P","607374":"P","545361":"PosP","444432":"PosP","627500":"P","657061":"PosP","663656":"PosP","605512":"PosP","592815":"P","453064":"PosP","605513":"P","545363":"P","457759":"PosP","607208":"PosP","621249":"P","457708":"PosP","570632":"P","620446":"PosP","628711":"P","649966":"PosP","570482":"PosP","400284":"PosP","642162":"PosP","472528":"PosP","664285":"P","572308":"P","502143":"PosP","621044":"PosP","591971":"PosP","642165":"PosP","545121":"PosP","450306":"P","607755":"P","657786":"P","543877":"PosP","592826":"P","623205":"PosP","584171":"P","519381":"P","458924":"P","657077":"PosP","572403":"P","434378":"P","600986":"P","622713":"PosP","570799":"PosP","542340":"PosP","650619":"PosP","572227":"PosP","543883":"P","527055":"P","596129":"PosP","519390":"PosP","572228":"PosP","450172":"P","458690":"P","608723":"P","458015":"PosP","608379":"P","642180":"PosP","592833":"P","425794":"P","519393":"P","605520":"PosP","572233":"PosP","435522":"PosP","592836":"P","595453":"PosP","621493":"PosP","476589":"P","453265":"P","596133":"P","657097":"P","643778":"P","543901":"P","543903":"P","592848":"P","605525":"P","621563":"PosP","547007":"P","554430":"P","643603":"PosP","595032":"P","592858":"P","623364":"P","446308":"PosP","658792":"P","592859":"PosP","657117":"P","642211":"PosP","592863":"PosP","608384":"PosP","592865":"P","592866":"P","607776":"PosP","543935":"P","435064":"PosP","669060":"P","458677":"P","622259":"P","608385":"PosP","595465":"P","621550":"PosP","605538":"P","621295":"P","547172":"PosP","543939":"PosP","622072":"P","502028":"P","621056":"P","605540":"P","519443":"P","642226":"P","431151":"PosP","657140":"P","605541":"P","453214":"P","642851":"PosP","642231":"P","642232":"P","489446":"P","592885":"PosP","593679":"P","455759":"PosP","458913":"PosP","657145":"PosP","489448":"P","623354":"P","642239":"P","446899":"P","605548":"PosP","622092":"P","475582":"PosP","519455":"P","450314":"PosP","572287":"PosP"};
       window.games_CLI = {"NYY":"0.7750448700477952","CIN":"1.036889335291126","CWS":"1.1567497421796724","BOS":"0.9413777413597011","DET":"1.0071280644300686","MIN":"1.0910842350620023","PHI":"1.2350418384795976","WSH":"0.8669854884342783","SEA":"0.8213088655668002","ARI":"1.1222402993876517","LAD":"1.432781545347697","ATL":"1.0865091180992068","MIA":"0.6591547963219158","KC":"0.49963281074207033","SF":"0.5062752478536179"};
 

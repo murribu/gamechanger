@@ -16,40 +16,10 @@ export const get_calendar_event_id = function(game) {
   return calendar_event_id;
 };
 
-export const get_base_situation = function(runners_on_base_status) {
-  var first = false;
-  var second = false;
-  var third = false;
-  var ordinal = parseInt(runners_on_base_status) + 1;
-  switch (runners_on_base_status) {
-    case "1":
-      first = true;
-      break;
-    case "2":
-      second = true;
-      break;
-    case "3":
-      third = true;
-      ordinal = 5;
-      break;
-    case "4":
-      first = true;
-      second = true;
-      ordinal = 4;
-      break;
-    case "5":
-      first = true;
-      third = true;
-      break;
-    case "6":
-      second = true;
-      third = true;
-      break;
-    case "7":
-      first = true;
-      second = true;
-      third = true;
-      break;
-  }
+export const get_base_situation = function(offense) {
+  var first = !!offense.first;
+  var second = !!offense.second;
+  var third = !!offense.third;
+  var ordinal = (first ? 1 : 0) + (second ? 2 : 0) + (third ? 4 : 0) + 1;
   return { first, second, third, ordinal };
 };

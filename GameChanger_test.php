@@ -40,19 +40,19 @@ LEFT JOIN apps AS a USING (playerID, yearID, teamID)
 INNER JOIN mlbam USING (playerID)
 LEFT JOIN People USING (playerID)
 LEFT JOIN (
-  SELECT
+	SELECT
 		apps.playerID,
 		apps.teamID
-  FROM apps
-  INNER JOIN (
-    SELECT
+	FROM apps
+	INNER JOIN (
+		SELECT
 			playerID,
 			MAX(stint) AS stint
-    FROM apps
-    WHERE yearID = $year
-    GROUP BY playerID
-  ) AS c ON (apps.playerID = c.playerID AND apps.stint = c.stint)
-  WHERE apps.yearID = $year
+		FROM apps
+		WHERE yearID = $year
+		GROUP BY playerID
+	) AS c ON (apps.playerID = c.playerID AND apps.stint = c.stint)
+	WHERE apps.yearID = $year
 ) AS cur USING (playerID)
 WHERE metrics.yearID >= $year - 1
 GROUP BY metrics.playerID
@@ -62,11 +62,11 @@ $stmt_plyrs = $db_fg->prepare($query_plyrs);
 $stmt_plyrs->execute();
 while($row_plyrs = $stmt_plyrs->fetch(PDO::FETCH_ASSOC)){
 	$player_display = $row_plyrs['nameLast'] . ", " . $row_plyrs['nameFirst'];
-  if($row_plyrs['teamID'] != ''){
-    $player_display .=  " (" . $row_plyrs['teamID'] . ")";
-  }
+	if($row_plyrs['teamID'] != ''){
+		$player_display .=  " (" . $row_plyrs['teamID'] . ")";
+	}
 
-  $players[] = array('display' => $player_display, 'id' => $row_plyrs['ID']);
+	$players[] = array('display' => $player_display, 'id' => $row_plyrs['ID']);
 
 	if($row_plyrs['Pos'] == 'P'){
 		$pos = 'P';
@@ -115,9 +115,9 @@ while($row_CLI = $stmt_CLI->fetch(PDO::FETCH_ASSOC)){
 		$home_teamID = $row_CLI['home_teamID'];
 	}
 
-  if(is_numeric($row_CLI['aCLI'])){
-    $games_CLI[$home_teamID] = $row_CLI['aCLI'];
-  }
+	if(is_numeric($row_CLI['aCLI'])){
+		$games_CLI[$home_teamID] = $row_CLI['aCLI'];
+	}
 }
 
 $teams = array(
@@ -202,17 +202,17 @@ $GameSit = array(
 ?>
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>
-      MLB.tv Game Changer - The Baseball Gauge</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<head>
+		<title>
+			MLB.tv Game Changer - The Baseball Gauge</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 		<link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
-  </head>
+	</head>
 
-  <body>
-    <?php include('header.php');?>
+	<body>
+		<?php include('header.php');?>
 
 		<br>
 		<div>
@@ -229,209 +229,209 @@ $GameSit = array(
 			</script>
 		</div>
 
-    <main>
-      <h2 class="page__title">MLB.tv Game Changer</h2>
-      <br>
-      <div id="game-changer-vue-container"></div>
-      <div class="GC-save-settings">
-        <button id="launch">Launch Video</button>
-      </div>
-      <br>
-      <div class="GC-notes">
-        <a href="#FAQ">Requirements / Instructions</a>
-      </div>
-      <br>
-      <div id="current_game"></div>
+		<main>
+			<h2 class="page__title">MLB.tv Game Changer</h2>
+			<br>
+			<div id="game-changer-vue-container"></div>
+			<div class="GC-save-settings">
+				<button id="launch">Launch Video</button>
+			</div>
+			<br>
+			<div class="GC-notes">
+				<a href="#FAQ">Requirements / Instructions</a>
+			</div>
+			<br>
+			<div id="current_game"></div>
 
-      <div class="GC-settings">
-        <h3 class="GC-settings-title">Games</h3>
-        <div class="GC-games" id="active"></div>
-      </div>
-      <br>
-      <form id="GC-form" method="post" name="priority">
+			<div class="GC-settings">
+				<h3 class="GC-settings-title">Games</h3>
+				<div class="GC-games" id="active"></div>
+			</div>
+			<br>
+			<form id="GC-form" method="post" name="priority">
 
-      <div class="GC-container">
-        <div class="GC-column">
-          <div class="GC-settings">
-            <h3 class="GC-settings-title">If Batter is On Deck with < 2 Outs</h3>
+			<div class="GC-container">
+				<div class="GC-column">
+					<div class="GC-settings">
+						<h3 class="GC-settings-title">If Batter is On Deck with < 2 Outs</h3>
 						<div class="team-ignore">
 							<input type="radio" class="form__radio" id="on_deck_Y" name="on_deck" value="Y" />
-	            <label for="on_deck_Y"><span></span> Switch to game immediately</label>
+							<label for="on_deck_Y"><span></span> Switch to game immediately</label>
 						</div>
 						<div class="team-ignore">
-	            <input type="radio" class="form__radio" id="on_deck_N" name="on_deck" value="N" />
-	            <label for="on_deck_N"><span></span> Wait until player is at bat</label>
+							<input type="radio" class="form__radio" id="on_deck_N" name="on_deck" value="N" />
+							<label for="on_deck_N"><span></span> Wait until player is at bat</label>
 						</div>
-          </div>
+					</div>
 
-          <div class="GC-settings">
-            <h3 class="GC-settings-title">Teams to Ignore</h3>
-            <div class="league-ignore-container">
-              <div class="league-ignore">
-                <div class="team-ignore">
+					<div class="GC-settings">
+						<h3 class="GC-settings-title">Teams to Ignore</h3>
+						<div class="league-ignore-container">
+							<div class="league-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xARI" type="checkbox" value="ARI" id="xARI" />
-	                <label for="xARI"><span></span> ARI</label>
+									<label for="xARI"><span></span> ARI</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xATL" type="checkbox" value="ATL" id="xATL" />
-	                <label for="xATL"><span></span> ATL</label>
+									<label for="xATL"><span></span> ATL</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xCHC" type="checkbox" value="CHC" id="xCHC" />
-	                <label for="xCHC"><span></span> CHC</label>
+									<label for="xCHC"><span></span> CHC</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xCIN" type="checkbox" value="CIN" id="xCIN" />
 									<label for="xCIN"><span></span> CIN</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xCOL" type="checkbox" value="COL" id="xCOL" />
 									<label for="xCOL"><span></span> COL</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xLAD" type="checkbox" value="LAD" id="xLAD" />
 									<label for="xLAD"><span></span> LAD</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xMIA" type="checkbox" value="MIA" id="xMIA" />
 									<label for="xMIA"><span></span> MIA</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xMIL" type="checkbox" value="MIL" id="xMIL" />
 									<label for="xMIL"><span></span> MIL</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xNYM" type="checkbox" value="NYM" id="xNYM" />
 									<label for="xNYM"><span></span> NYM</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xPHI" type="checkbox" value="PHI" id="xPHI" />
 									<label for="xPHI"><span></span> PHI</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xPIT" type="checkbox" value="PIT" id="xPIT" />
 									<label for="xPIT"><span></span> PIT</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xSD" type="checkbox" value="SD" id="xSD" />
 									<label for="xSD"><span></span> SD</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xSF" type="checkbox" value="SF" id="xSF" />
 									<label for="xSF"><span></span> SF</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xSTL" type="checkbox" value="STL" id="xSTL" />
-	                <label for="xSTL"><span></span> STL</label>
+									<label for="xSTL"><span></span> STL</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xWSH" type="checkbox" value="WSH" id="xWSH" />
 									<label for="xWSH"><span></span> WSH</label>
 								</div>
-              </div>
+							</div>
 
-              <div class="league-ignore">
+							<div class="league-ignore">
 								<div class="team-ignore">
 									<input class="form__checkbox" name="xBAL" type="checkbox" value="BAL" id="xBAL" />
-	                <label for="xBAL"><span></span> BAL</label>
+									<label for="xBAL"><span></span> BAL</label>
 								</div>
 								<div class="team-ignore">
 									<input class="form__checkbox" name="xBOS" type="checkbox" value="BOS" id="xBOS" />
-	                <label for="xBOS"><span></span> BOS</label>
+									<label for="xBOS"><span></span> BOS</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xCWS" type="checkbox" value="CWS" id="xCWS" />
 									<label for="xCWS"><span></span> CWS</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xCLE" type="checkbox" value="CLE" id="xCLE" />
-	                <label for="xCLE"><span></span> CLE</label>
+									<label for="xCLE"><span></span> CLE</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xDET" type="checkbox" value="DET" id="xDET" />
 									<label for="xDET"><span></span> DET</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xHOU" type="checkbox" value="HOU" id="xHOU" />
 									<label for="xHOU"><span></span> HOU</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xKC" type="checkbox" value="KC" id="xKC" />
 									<label for="xKC"><span></span> KC</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xLAA" type="checkbox" value="LAA" id="xLAA" />
 									<label for="xLAA"><span></span> LAA</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xMIN" type="checkbox" value="MIN" id="xMIN" />
 									<label for="xMIN"><span></span> MIN</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xNYY" type="checkbox" value="NYY" id="xNYY" />
 									<label for="xNYY"><span></span> NYY</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xOAK" type="checkbox" value="OAK" id="xOAK" />
 									<label for="xOAK"><span></span> OAK</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xSEA" type="checkbox" value="SEA" id="xSEA" />
 									<label for="xSEA"><span></span> SEA</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xTB" type="checkbox" value="TB" id="xTB" />
 									<label for="xTB"><span></span> TB</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xTEX" type="checkbox" value="TEX" id="xTEX" />
 									<label for="xTEX"><span></span> TEX</label>
 								</div>
-                <div class="team-ignore">
+								<div class="team-ignore">
 									<input class="form__checkbox" name="xTOR" type="checkbox" value="TOR" id="xTOR" />
 									<label for="xTOR"><span></span> TOR</label>
 								</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="GC-settings">
-            <h3 class="GC-settings-title">Championship Leverage Index</h3>
-						<div class="team-ignore">
-							<input type="radio" class="form__radio" id="include_CLI_Y" name="include_CLI" value="Y" />
-	            <label for="include_CLI_Y"><span></span> Include in Leverage Index</label>
-						</div>
-						<div class="team-ignore">
-	            <input type="radio" class="form__radio" id="include_CLI_N" name="include_CLI" value="N" />
-	            <label for="include_CLI_N"><span></span> Do not include in Leverage Index</label>
-						</div>
-          </div>
-
-          <div class="GC-settings">
-            <h3 class="GC-settings-title">Delay</h3>
-            <select class="form__dropdown-select" id="delay" name="delay">
-            <?php for($i = 0; $i <= 75; $i++){?>
-              <option value="<?php echo $i;?>"><?php echo $i;?> seconds</option>
-            <?php }?>
-            </select>
-            <br>* Time between MLB's gameday feed<br> and MLB.tv broadcast
-          </div>
-
-          <div class="GC-settings">
-            <h3 class="GC-settings-title">Video Player</h3>
-						<div class="team-ignore">
-	            <input type="radio" class="form__radio" id="vid_player_reg" name="vid_player" value="reg" />
-	            <label for="vid_player_reg"><span></span> Regular MLB.tv video player</label>
-						</div>
-						<div class="team-ignore">
-	            <input type="radio" class="form__radio" id="vid_player_old" name="vid_player" value="old" />
-	            <label for="vid_player_old"><span></span> Old MLB.tv video player</label>
+							</div>
 						</div>
 					</div>
-        </div>
-        <div class="GC-column">
-          <div class="GC-settings">
-            <h3 class="GC-settings-title">Priority List</h3>
+
+					<div class="GC-settings">
+						<h3 class="GC-settings-title">Championship Leverage Index</h3>
+						<div class="team-ignore">
+							<input type="radio" class="form__radio" id="include_CLI_Y" name="include_CLI" value="Y" />
+							<label for="include_CLI_Y"><span></span> Include in Leverage Index</label>
+						</div>
+						<div class="team-ignore">
+							<input type="radio" class="form__radio" id="include_CLI_N" name="include_CLI" value="N" />
+							<label for="include_CLI_N"><span></span> Do not include in Leverage Index</label>
+						</div>
+					</div>
+
+					<div class="GC-settings">
+						<h3 class="GC-settings-title">Delay</h3>
+						<select class="form__dropdown-select" id="delay" name="delay">
+						<?php for($i = 0; $i <= 75; $i++){?>
+							<option value="<?php echo $i;?>"><?php echo $i;?> seconds</option>
+						<?php }?>
+						</select>
+						<br>* Time between MLB's gameday feed<br> and MLB.tv broadcast
+					</div>
+
+					<div class="GC-settings">
+						<h3 class="GC-settings-title">Video Player</h3>
+						<div class="team-ignore">
+							<input type="radio" class="form__radio" id="vid_player_reg" name="vid_player" value="reg" />
+							<label for="vid_player_reg"><span></span> Regular MLB.tv video player</label>
+						</div>
+						<div class="team-ignore">
+							<input type="radio" class="form__radio" id="vid_player_old" name="vid_player" value="old" />
+							<label for="vid_player_old"><span></span> Old MLB.tv video player</label>
+						</div>
+					</div>
+				</div>
+				<div class="GC-column">
+					<div class="GC-settings">
+						<h3 class="GC-settings-title">Priority List</h3>
 						<div class="GC-title-container">
 							<span class="GC-priorityNumber">#</span>
 							<div class="GC-title">
@@ -443,32 +443,32 @@ $GameSit = array(
 							</div>
 						</div>
 						<?php
-            for($i = 1; $i <= $max_priorities; $i++){
-              $type_name = 'type_' . $i;
-              $data_name = 'data_' . $i;
-              $immediate_name = 'immediate_' . $i;
-              ?>
+						for($i = 1; $i <= $max_priorities; $i++){
+							$type_name = 'type_' . $i;
+							$data_name = 'data_' . $i;
+							$immediate_name = 'immediate_' . $i;
+							?>
 							<div class="drag__drop" id="drag__drop-<?=$i;?>" data-priority="<?=$i;?>">
 								<div class="drag__drop-line"></div>
 							</div>
 							<div class="GC-priorityContainer">
-					      <span class="GC-priorityNumber"><?=$i;?></span>
+								<span class="GC-priorityNumber"><?=$i;?></span>
 								<div class="drag__container" id="drag__container-<?=$i;?>" data-priority="<?=$i;?>">
-					        <div draggable="true" class="drag__element" id="drag__element-<?=$i;?>" data-priority="<?=$i;?>">
+									<div draggable="true" class="drag__element" id="drag__element-<?=$i;?>" data-priority="<?=$i;?>">
 										<div class="GC-priority__type-container">
 											<select class="form__dropdown-select" id="<?php echo $type_name;?>" name="<?php echo $type_name;?>" data-linked="data_<?=$i;?>">
-	                      <option value=""></option>
-	                      <option value="bat">Batter</option>
-	                      <option value="pit">Pitcher</option>
-	                      <option value="run">Runner</option>
-	                      <option value="LI">Leverage Index</option>
-	                      <option value="team">Team</option>
-	                      <option value="NoNo">No-Hitter</option>
-	                      <option value="GameSit">Game Situation</option>
-	                      <option value="team_bat">Team Batting</option>
-	                      <option value="team_pit">Team Pitching</option>
-	                      <option value="Misc">Miscellaneous</option>
-	                    </select>
+												<option value=""></option>
+												<option value="bat">Batter</option>
+												<option value="pit">Pitcher</option>
+												<option value="run">Runner</option>
+												<option value="LI">Leverage Index</option>
+												<option value="team">Team</option>
+												<option value="NoNo">No-Hitter</option>
+												<option value="GameSit">Game Situation</option>
+												<option value="team_bat">Team Batting</option>
+												<option value="team_pit">Team Pitching</option>
+												<option value="Misc">Miscellaneous</option>
+											</select>
 										</div>
 										<div class="GC-priority__data-container">
 											<select class="form__dropdown-select" id="<?php echo $data_name;?>" name="<?php echo $data_name;?>">
@@ -476,82 +476,82 @@ $GameSit = array(
 										</div>
 
 										<div class="GC-priority__immediate-container">
-					            <input class="form__checkbox" type="checkbox" name="<?=$immediate_name;?>" id="<?=$immediate_name;?>" value="Y">
+											<input class="form__checkbox" type="checkbox" name="<?=$immediate_name;?>" id="<?=$immediate_name;?>" value="Y">
 											<label for="<?=$immediate_name;?>" id="immediate_label_<?=$i;?>"><span></span></label>
-					          </div>
+										</div>
 										<svg class="drag__delete">
-					            <use xlink:href="images/sprite.svg#icon-bin"></use>
-					          </svg>
+											<use xlink:href="images/sprite.svg#icon-bin"></use>
+										</svg>
 										<svg class="drag__handle">
-					            <use xlink:href="images/sprite.svg#icon-menu2"></use>
-					          </svg>
-					        </div>
+											<use xlink:href="images/sprite.svg#icon-menu2"></use>
+										</svg>
+									</div>
 								</div>
-					    </div>
+							</div>
 						<?php }?>
 					</div>
-        </div>
-      </div>
-      </form>
-      <br>
+				</div>
+			</div>
+			</form>
+			<br>
 
-      <div class="GC-settings">
-        <h3 class="GC-settings-title">Import/Export Settings</h3>
-        <br>
-        <button id="create_export" class="form__submit">Create file to export settings:</button><br>
-        <a download="GameChanger.txt" id="downloadlink" style="display: none" >Download Settings</a>
-        <br>
-        Choose file to import:<br>
+			<div class="GC-settings">
+				<h3 class="GC-settings-title">Import/Export Settings</h3>
+				<br>
+				<button id="create_export" class="form__submit">Create file to export settings:</button><br>
+				<a download="GameChanger.txt" id="downloadlink" style="display: none" >Download Settings</a>
+				<br>
+				Choose file to import:<br>
 				*Settings will automatically import upon file selection<br>
-        <input type="file" name="file" id="import" accept=".txt, text/plain" />
+				<input type="file" name="file" id="import" accept=".txt, text/plain" />
 				<label for="import">Import Settings</label>
-      </div>
+			</div>
 
-      <br><br>
+			<br><br>
 			<div class="GC-FAQ-container">
-	      <div class="GC-requirements">
+				<div class="GC-requirements">
 					<h3 id="FAQ" class="GC-settings-title">Requirements</h3>
 					&#149; Video can take up to 5 seconds to load game after the tab is launched.
-	        <br><br>
+					<br><br>
 					&#149; Unfortunately, Full-Screen mode in MLB.tv cannot be maintained after a new game is loaded.
-	        <br><br>
-	        &#149; Must have a subscription to <a href="http://mlb.mlb.com/mlb/subscriptions/index.jsp?c_id=mlb&affiliateId=mlbMENU" target="_blank">MLB.tv</a>. This will probably work with a Radio-only subscription, however, you may need to adjust the delay setting to sync your audio feed.
-	        <br><br>
-	        &#149; Settings are automatically saved, using your browser's local storage. If you'd like to transfer settings to a friend, another browser or device, you can generate a .txt file, which will contain your settings for import.
-	        <br><br>
-	        &#149; Pop-ups must be enabled on this page. The Game Changer opens games in a second browser tab/window. This will not work if pop-ups are blocked.
-	        <br><br>
-	        &#149; This will only work using a web browser, and not on a Roku/Amazon Fire TV/Chromecast type device.
-	        <br><br>
-	        &#149; This window needs to remain open in your browser for this to work. If you close this window, the game currently showing will no longer change based on your priority list.
-	      </div>
+					<br><br>
+					&#149; Must have a subscription to <a href="http://mlb.mlb.com/mlb/subscriptions/index.jsp?c_id=mlb&affiliateId=mlbMENU" target="_blank">MLB.tv</a>. This will probably work with a Radio-only subscription, however, you may need to adjust the delay setting to sync your audio feed.
+					<br><br>
+					&#149; Settings are automatically saved, using your browser's local storage. If you'd like to transfer settings to a friend, another browser or device, you can generate a .txt file, which will contain your settings for import.
+					<br><br>
+					&#149; Pop-ups must be enabled on this page. The Game Changer opens games in a second browser tab/window. This will not work if pop-ups are blocked.
+					<br><br>
+					&#149; This will only work using a web browser, and not on a Roku/Amazon Fire TV/Chromecast type device.
+					<br><br>
+					&#149; This window needs to remain open in your browser for this to work. If you close this window, the game currently showing will no longer change based on your priority list.
+				</div>
 
 				<div class="GC-FAQ">
 					<h3 id="FAQ" class="GC-settings-title">Instructions</h3>
-	      	&#149; <b>If Batter is On Deck with < 2 Outs: </b>This setting is for batters in your priority list. If that batter is on deck with fewer than 2 outs, the application can switch to that game to help ensure that you don't miss that at bat. If the option "Wait until player is at bat" is selected, there is a chance that this batter's at bat ends before the application can switch to their game.
-	        <br><br>
-	        &#149; <b>Teams to ignore: </b>Any teams checked will be ignored. This is if you are blacked out from viewing certain teams, or if you have a certain game on a different device, or if you just can't stand watching a certain team. For example, I usually keep KC and TB checked since I am blacked out from Royals games and I usually have Rays games on a tablet, since I want to avoid having the same game on two screens.
-	        <br><br>
-	        &#149; <b>Delay: </b>There is a delay in MLB.tv feeds, from when the mlb.com's gameday data updates to when MLB.tv shows the game. I have made it adjustable for the user just in case there is a variation in the delay for certain people or certain times. If games are switching before at bats finish, you can increase the delay time.
-	        <br><br>
+					&#149; <b>If Batter is On Deck with < 2 Outs: </b>This setting is for batters in your priority list. If that batter is on deck with fewer than 2 outs, the application can switch to that game to help ensure that you don't miss that at bat. If the option "Wait until player is at bat" is selected, there is a chance that this batter's at bat ends before the application can switch to their game.
+					<br><br>
+					&#149; <b>Teams to ignore: </b>Any teams checked will be ignored. This is if you are blacked out from viewing certain teams, or if you have a certain game on a different device, or if you just can't stand watching a certain team. For example, I usually keep KC and TB checked since I am blacked out from Royals games and I usually have Rays games on a tablet, since I want to avoid having the same game on two screens.
+					<br><br>
+					&#149; <b>Delay: </b>There is a delay in MLB.tv feeds, from when the mlb.com's gameday data updates to when MLB.tv shows the game. I have made it adjustable for the user just in case there is a variation in the delay for certain people or certain times. If games are switching before at bats finish, you can increase the delay time.
+					<br><br>
 					&#149; <b>Switch Immediately?: </b>If this option is checked, the application will immedately switch to the game matching this preference. Otherwise, it will wait until the current at bat being shown is finished before switching. This option is left unchecked by default to prevent excessive switching of games in the middle of at bats.
-	        <br><br>
-	        &#149; <b>Priority List: </b>This application constantly checks to see if any of the current games match the user's priority criteria. If there are any matches, it will switch to the game with the highest priority. If there are no games that match any of the criteria on the priority list, the application will choose the game with the highest current leverage index (LI) and will switch between games with the highest LI until there are any matches on the priority list.<br><br>
-	        If you want to see a player like Shohei Ohtani pitch AND hit, you need to include them on the priority list in both "Batter" and "Pitcher" categories.<br><br>
-	        The Runner category is for when that runner is on 1st or 2nd base with the next base open. This is for stolen base threats like Billy Hamilton.
-	        <br><br>
-	        When an inning ends, the application will switch games. However, there is currently no way to detect a pitching change. So if you have Bryce Harper as your highest priority, and let's say when he comes to bat, the opposing team decides to bring in a LHP. Since MLB's gameday data shows him "at bat" during the entire pitching change, the game will stay on during the commercial break.
-	        <br><br>
-	        &#149; <b>Championship Leverage Index: </b>CLI is the measurement of a game's importance to a team's probability of winning the World Series, with 1 equaling the importance of a game on opening day. By choosing to include CLI, the in-game leverage index is multiplied by the championship leverage index.
-	      </div>
+					<br><br>
+					&#149; <b>Priority List: </b>This application constantly checks to see if any of the current games match the user's priority criteria. If there are any matches, it will switch to the game with the highest priority. If there are no games that match any of the criteria on the priority list, the application will choose the game with the highest current leverage index (LI) and will switch between games with the highest LI until there are any matches on the priority list.<br><br>
+					If you want to see a player like Shohei Ohtani pitch AND hit, you need to include them on the priority list in both "Batter" and "Pitcher" categories.<br><br>
+					The Runner category is for when that runner is on 1st or 2nd base with the next base open. This is for stolen base threats like Billy Hamilton.
+					<br><br>
+					When an inning ends, the application will switch games. However, there is currently no way to detect a pitching change. So if you have Bryce Harper as your highest priority, and let's say when he comes to bat, the opposing team decides to bring in a LHP. Since MLB's gameday data shows him "at bat" during the entire pitching change, the game will stay on during the commercial break.
+					<br><br>
+					&#149; <b>Championship Leverage Index: </b>CLI is the measurement of a game's importance to a team's probability of winning the World Series, with 1 equaling the importance of a game on opening day. By choosing to include CLI, the in-game leverage index is multiplied by the championship leverage index.
+				</div>
 			</div>
-    </main>
-    <footer><?php include('footer.php');?></footer>
+		</main>
+		<footer><?php include('footer.php');?></footer>
 		<script src="js/scripts.js?v=<?php echo time(); ?>"></script>
-    <script src="js/nav.js?v=<?php echo time(); ?>"></script>
-    <script src="js/tooltip.js?v=<?php echo time(); ?>"></script>
-    <script src="js/autosuggest.js?v=<?php echo time(); ?>"></script>
-  </body>
+		<script src="js/nav.js?v=<?php echo time(); ?>"></script>
+		<script src="js/tooltip.js?v=<?php echo time(); ?>"></script>
+		<script src="js/autosuggest.js?v=<?php echo time(); ?>"></script>
+	</body>
 </html>
 <script>
 
@@ -985,35 +985,35 @@ function updateGameText(cur_game_text, delay) {
 }
 
 function updateGameHighlight(old_game, new_game, delay) {
-  setTimeout(function() {
+	setTimeout(function() {
 		if(old_game !== '' && old_game !== new_game){
 			document.getElementById(old_game).classList.remove('GC-game-highlight');
-    }
-    console.log('new_game: ' + new_game);
+		}
+		console.log('new_game: ' + new_game);
 		document.getElementById(new_game).classList.add('GC-game-highlight');
 	}, delay);
 }
 
 (function (){
-  var textFile = null,
-  makeTextFile = function (text){
-    var data = new Blob([text], {
-      type: 'text/plain'
-    });
+	var textFile = null,
+	makeTextFile = function (text){
+		var data = new Blob([text], {
+			type: 'text/plain'
+		});
 
-    // If we are replacing a previously generated file we need to
-    // manually revoke the object URL to avoid memory leaks.
-    if(textFile !== null) {
-      window.URL.revokeObjectURL(textFile);
-    }
-    textFile = window.URL.createObjectURL(data);
-    return textFile;
-  };
+		// If we are replacing a previously generated file we need to
+		// manually revoke the object URL to avoid memory leaks.
+		if(textFile !== null) {
+			window.URL.revokeObjectURL(textFile);
+		}
+		textFile = window.URL.createObjectURL(data);
+		return textFile;
+	};
 
-  var create_export = document.getElementById('create_export');
+	var create_export = document.getElementById('create_export');
 
-  create_export.addEventListener('click', function (){
-    var link = document.getElementById('downloadlink');
+	create_export.addEventListener('click', function (){
+		var link = document.getElementById('downloadlink');
 		var settings = {
 			'on_deck' : on_deck,
 			'include_CLI' : include_CLI,
@@ -1022,8 +1022,8 @@ function updateGameHighlight(old_game, new_game, delay) {
 			'ignore' : ignore,
 			'priority' : pref_order
 		};
-    link.href = makeTextFile(JSON.stringify(settings));
-    link.style.display = 'block';
+		link.href = makeTextFile(JSON.stringify(settings));
+		link.style.display = 'block';
 	});
 })();
 
@@ -1088,7 +1088,7 @@ document.getElementById('import').addEventListener('change', function(e){
 	var file = e.target.files;
 	var reader = new FileReader();
 	reader.onload = function(e) {
-	  importSettings(reader.result);
+		importSettings(reader.result);
 	}
 	reader.readAsText(file[0]);
 });
@@ -1144,7 +1144,7 @@ function update(){
 	var western_time = utc + (3600000 * -8);
 	var date = new Date(western_time);
 
-  var day = ("0" + date.getDate()).slice(-2);
+	var day = ("0" + date.getDate()).slice(-2);
 	var month = ("0" + (date.getMonth() + 1)).slice(-2);
 	var year = date.getFullYear();
 
@@ -1517,11 +1517,11 @@ function update(){
 		error: function() {
 
 		},
-    complete: function(){
+		complete: function(){
 			// Re-check every 6 seconds
-      setTimeout(function(){update();}, 6000);
-    }
-  });
+			setTimeout(function(){update();}, 6000);
+		}
+	});
 }
 update();
 window.players = <?php echo json_encode($players); ?>;
@@ -1533,290 +1533,339 @@ window.NoNo = <?php echo json_encode($NoNo); ?>;
 window.GameSit = <?php echo json_encode($GameSit); ?>;
 window.Misc = <?php echo json_encode($Misc); ?>;
 window.teams = [
-    {
-      location: "Arizona",
-      name: "Diamondbacks",
-      display: "Arizona Diamondbacks",
-      id: "ARI",
-      league: "NL"
-    },
-    {
-      location: "Atlanta",
-      name: "Braves",
-      display: "Atlanta Braves",
-      id: "ATL",
-      league: "NL"
-    },
-    {
-      location: "Chicago",
-      name: "Cubs",
-      display: "Chicago Cubs",
-      id: "CHC",
-      league: "NL"
-    },
-    {
-      location: "Cincinnati",
-      name: "Reds",
-      display: "Cincinnati Reds",
-      id: "CIN",
-      league: "NL"
-    },
-    {
-      location: "Colorado",
-      name: "Rockies",
-      display: "Colorado Rockies",
-      id: "COL",
-      league: "NL"
-    },
-    {
-      location: "Los Angeles",
-      name: "Dodgers",
-      display: "Los Angeles Dodgers",
-      id: "LAD",
-      league: "NL"
-    },
-    {
-      location: "Miami",
-      name: "Marlins",
-      display: "Miami Marlins",
-      id: "MIA",
-      league: "NL"
-    },
-    {
-      location: "Milwaukee",
-      name: "Brewers",
-      display: "Milwaukee Brewers",
-      id: "MIL",
-      league: "NL"
-    },
-    {
-      location: "New York",
-      name: "Mets",
-      display: "New York Mets",
-      id: "NYM",
-      league: "NL"
-    },
-    {
-      location: "Philadelphia",
-      name: "Phillies",
-      display: "Philadelphia Phillies",
-      id: "PHI",
-      league: "NL"
-    },
-    {
-      location: "Pittsburgh",
-      name: "Pirates",
-      display: "Pittsburgh Pirates",
-      id: "PIT",
-      league: "NL"
-    },
-    {
-      location: "San Diego",
-      name: "Padres",
-      display: "San Diego Padres",
-      id: "SD",
-      league: "NL"
-    },
-    {
-      location: "San Francisco",
-      name: "Giants",
-      display: "San Francisco Giants",
-      id: "SF",
-      league: "NL"
-    },
-    {
-      location: "St. Louis",
-      name: "Cardinals",
-      display: "St. Louis Cardinals",
-      id: "STL",
-      league: "NL"
-    },
-    {
-      location: "Washington",
-      name: "Nationals",
-      display: "Washington Nationals",
-      id: "WSH",
-      league: "NL"
-    },
-    {
-      location: "Baltimore",
-      name: "Orioles",
-      display: "Baltimore Orioles",
-      id: "BAL",
-      league: "AL"
-    },
-    {
-      location: "Boston",
-      name: "Red Sox",
-      display: "Boston Red Sox",
-      id: "BOS",
-      league: "AL"
-    },
-    {
-      location: "Chicago",
-      name: "White Sox",
-      display: "Chicago White Sox",
-      id: "CWS",
-      league: "AL"
-    },
-    {
-      location: "Cleveland",
-      name: "Indians",
-      display: "Cleveland Indians",
-      id: "CLE",
-      league: "AL"
-    },
-    {
-      location: "Detroit",
-      name: "Tigers",
-      display: "Detroit Tigers",
-      id: "DET",
-      league: "AL"
-    },
-    {
-      location: "Houston",
-      name: "Astros",
-      display: "Houston Astros",
-      id: "HOU",
-      league: "AL"
-    },
-    {
-      location: "Kansas City",
-      name: "Royals",
-      display: "Kansas City Royals",
-      id: "KC",
-      league: "AL"
-    },
-    {
-      location: "Los Angeles",
-      name: "Angels",
-      display: "Los Angeles Angels of Anaheim",
-      id: "LAA",
-      league: "AL"
-    },
-    {
-      location: "Minnesota",
-      name: "Twins",
-      display: "Minnesota Twins",
-      id: "MIN",
-      league: "AL"
-    },
-    {
-      location: "New York",
-      name: "Yankees",
-      display: "New York Yankees",
-      id: "NYY",
-      league: "AL"
-    },
-    {
-      location: "Oakland",
-      name: "Athletics",
-      display: "Oakland Athletics",
-      id: "OAK",
-      league: "AL"
-    },
-    {
-      location: "Seattle",
-      name: "Mariners",
-      display: "Seattle Mariners",
-      id: "SEA",
-      league: "AL"
-    },
-    {
-      location: "Tampa Bay",
-      name: "Rays",
-      display: "Tampa Bay Rays",
-      id: "TB",
-      league: "AL"
-    },
-    {
-      location: "Texas",
-      name: "Rangers",
-      display: "Texas Rangers",
-      id: "TEX",
-      league: "AL"
-    },
-    {
-      location: "Toronto",
-      name: "Blue Jays",
-      display: "Toronto Blue Jays",
-      id: "TOR",
-      league: "AL"
-    }
-  ];
+		{
+			location: "Arizona",
+			name: "Diamondbacks",
+			display: "Arizona Diamondbacks",
+			id: 109,
+			league: "NL",
+			tbg_abbr: "ARI"
+		},
+		{
+			location: "Atlanta",
+			name: "Braves",
+			display: "Atlanta Braves",
+			id: 144,
+			league: "NL",
+			tbg_abbr: "ATL"
+		},
+		{
+			location: "Chicago",
+			name: "Cubs",
+			display: "Chicago Cubs",
+			id: 112,
+			league: "NL",
+			tbg_abbr: "CHC"
+		},
+		{
+			location: "Cincinnati",
+			name: "Reds",
+			display: "Cincinnati Reds",
+			id: 113,
+			league: "NL",
+			tbg_abbr: "CIN"
+		},
+		{
+			location: "Colorado",
+			name: "Rockies",
+			display: "Colorado Rockies",
+			id: 115,
+			league: "NL",
+			tbg_abbr: "COL"
+		},
+		{
+			location: "Los Angeles",
+			name: "Dodgers",
+			display: "Los Angeles Dodgers",
+			id: 119,
+			league: "NL",
+			tbg_abbr: "LAD"
+		},
+		{
+			location: "Miami",
+			name: "Marlins",
+			display: "Miami Marlins",
+			id: 146,
+			league: "NL",
+			tbg_abbr: "MIA"
+		},
+		{
+			location: "Milwaukee",
+			name: "Brewers",
+			display: "Milwaukee Brewers",
+			id: 158,
+			league: "NL",
+			tbg_abbr: "MIL"
+		},
+		{
+			location: "New York",
+			name: "Mets",
+			display: "New York Mets",
+			id: 121,
+			league: "NL",
+			tbg_abbr: "NYM"
+		},
+		{
+			location: "Philadelphia",
+			name: "Phillies",
+			display: "Philadelphia Phillies",
+			id: 143,
+			league: "NL",
+			tbg_abbr: "PHI"
+		},
+		{
+			location: "Pittsburgh",
+			name: "Pirates",
+			display: "Pittsburgh Pirates",
+			id: 134,
+			league: "NL",
+			tbg_abbr: "PIT"
+		},
+		{
+			location: "San Diego",
+			name: "Padres",
+			display: "San Diego Padres",
+			id: 135,
+			league: "NL",
+			tbg_abbr: "SD"
+		},
+		{
+			location: "San Francisco",
+			name: "Giants",
+			display: "San Francisco Giants",
+			id: 137,
+			league: "NL",
+			tbg_abbr: "SF"
+		},
+		{
+			location: "St. Louis",
+			name: "Cardinals",
+			display: "St. Louis Cardinals",
+			id: 138,
+			league: "NL",
+			tbg_abbr: "STL"
+		},
+		{
+			location: "Washington",
+			name: "Nationals",
+			display: "Washington Nationals",
+			id: 120,
+			league: "NL",
+			tbg_abbr: "WSH"
+		},
+		{
+			location: "Baltimore",
+			name: "Orioles",
+			display: "Baltimore Orioles",
+			id: 110,
+			league: "AL",
+			tbg_abbr: "BAL"
+		},
+		{
+			location: "Boston",
+			name: "Red Sox",
+			display: "Boston Red Sox",
+			id: 111,
+			league: "AL",
+			tbg_abbr: "BOS"
+		},
+		{
+			location: "Chicago",
+			name: "White Sox",
+			display: "Chicago White Sox",
+			id: 145,
+			league: "AL",
+			tbg_abbr: "CWS"
+		},
+		{
+			location: "Cleveland",
+			name: "Indians",
+			display: "Cleveland Indians",
+			id: 114,
+			league: "AL",
+			tbg_abbr: "CLE"
+		},
+		{
+			location: "Detroit",
+			name: "Tigers",
+			display: "Detroit Tigers",
+			id: 116,
+			league: "AL",
+			tbg_abbr: "DET"
+		},
+		{
+			location: "Houston",
+			name: "Astros",
+			display: "Houston Astros",
+			id: 117,
+			league: "AL",
+			tbg_abbr: "HOU"
+		},
+		{
+			location: "Kansas City",
+			name: "Royals",
+			display: "Kansas City Royals",
+			id: 118,
+			league: "AL",
+			tbg_abbr: "KC"
+		},
+		{
+			location: "Los Angeles",
+			name: "Angels",
+			display: "Los Angeles Angels of Anaheim",
+			id: 108,
+			league: "AL",
+			tbg_abbr: "LAA"
+		},
+		{
+			location: "Minnesota",
+			name: "Twins",
+			display: "Minnesota Twins",
+			id: 142,
+			league: "AL",
+			tbg_abbr: "MIN"
+		},
+		{
+			location: "New York",
+			name: "Yankees",
+			display: "New York Yankees",
+			id: 147,
+			league: "AL",
+			tbg_abbr: "NYY"
+		},
+		{
+			location: "Oakland",
+			name: "Athletics",
+			display: "Oakland Athletics",
+			id: 133,
+			league: "AL",
+			tbg_abbr: "OAK"
+		},
+		{
+			location: "Seattle",
+			name: "Mariners",
+			display: "Seattle Mariners",
+			id: 136,
+			league: "AL",
+			tbg_abbr: "SEA"
+		},
+		{
+			location: "Tampa Bay",
+			name: "Rays",
+			display: "Tampa Bay Rays",
+			id: 139,
+			league: "AL",
+			tbg_abbr: "TB"
+		},
+		{
+			location: "Texas",
+			name: "Rangers",
+			display: "Texas Rangers",
+			id: 140,
+			league: "AL",
+			tbg_abbr: "TEX"
+		},
+		{
+			location: "Toronto",
+			name: "Blue Jays",
+			display: "Toronto Blue Jays",
+			id: 141,
+			league: "AL",
+			tbg_abbr: "TOR"
+		}
+	];
 window.game_status_inds = {
-  I: {
-    description: "In Progress",
-    sort_score: 100,
-    main_display: "linescore",
-    bottom_display: "current"
-  },
-  MC: {
-    description: "",
-    sort_score: 100,
-    main_display: "linescore",
-    bottom_display: "current"
-  },
-  MA: {
-    description: "",
-    sort_score: 100,
-    main_display: "linescore",
-    bottom_display: "current"
-  },
-  MI: {
-    description: "",
-    sort_score: 100,
-    main_display: "linescore",
-    bottom_display: "current"
-  },
-  F: {
-    description: "Final",
-    sort_score: 80,
-    main_display: "linescore",
-    bottom_display: "result"
-  },
-  O: {
-    description: "Game Over",
-    sort_score: 80,
-    main_display: "linescore",
-    bottom_display: "result"
-  },
-  P: {
-    description: "Pregame",
-    sort_score: 70,
-    main_display: "preview",
-    bottom_display: "probables"
-  },
-  PW: {
-    description: "Postponed because of weather",
-    sort_score: 70,
-    main_display: "preview",
-    bottom_display: "none"
-  },
-  S: {
-    description: "Suspended",
-    sort_score: 70,
-    main_display: "preview",
-    bottom_display: "none"
-  },
-  DR: {
-    description: "Game Postponed",
-    sort_score: 60,
-    main_display: "preview",
-    bottom_display: "none"
-  },
-  Delayed: {
-    description: "Delayed",
-    sort_score: 95,
-    main_display: "linescore",
-    bottom_display: "current"
-  },
-  IR: {
-    description: "Injury Delay",
-    sort_score: 90,
-    main_display: "linescore",
-    bottom_display: "none"
-  }
+	I: {
+		description: "In Progress",
+		sort_score: 100,
+		main_display: "linescore",
+		bottom_display: "current",
+		challenge: false
+	},
+	MC: {
+		description: "",
+		sort_score: 100,
+		main_display: "linescore",
+		bottom_display: "current",
+		challenge: true
+	},
+	MA: {
+		description: "",
+		sort_score: 100,
+		main_display: "linescore",
+		bottom_display: "current",
+		challenge: true
+	},
+	MI: {
+		description: "",
+		sort_score: 100,
+		main_display: "linescore",
+		bottom_display: "current",
+		challenge: true
+	},
+	MF: {
+		description: "Manager Challenge: Close play at 1st",
+		sort_score: 100,
+		main_display: "linescore",
+		bottom_display: "current",
+		challenge: true
+	},
+	F: {
+		description: "Final",
+		sort_score: 80,
+		main_display: "final",
+		bottom_display: "result",
+		challenge: false
+	},
+	O: {
+		description: "Game Over",
+		sort_score: 80,
+		main_display: "final",
+		bottom_display: "result",
+		challenge: false
+	},
+	P: {
+		description: "Pregame",
+		sort_score: 70,
+		main_display: "preview",
+		bottom_display: "none",
+		challenge: false
+	},
+	PW: {
+		description: "Postponed because of weather",
+		sort_score: 70,
+		main_display: "preview",
+		bottom_display: "none",
+		challenge: false
+	},
+	S: {
+		description: "Suspended",
+		sort_score: 70,
+		main_display: "preview",
+		bottom_display: "none",
+		challenge: false
+	},
+	DR: {
+		description: "Game Postponed",
+		sort_score: 60,
+		main_display: "preview",
+		bottom_display: "none",
+		challenge: false
+	},
+	Delayed: {
+		description: "Delayed",
+		sort_score: 95,
+		main_display: "linescore",
+		bottom_display: "current",
+		challenge: false
+	},
+	IR: {
+		description: "Injury Delay",
+		sort_score: 90,
+		main_display: "linescore",
+		bottom_display: "none",
+		challenge: false
+	}
 };
 </script>
 <script src="/gamechanger.js"></script>

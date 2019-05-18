@@ -282,9 +282,10 @@ export default {
       delay: 5,
       vid_player: "reg",
       priorities: [{ type: "", object: "", switch_immediately: false }],
-      cur_game_vid: "",
       interval: null,
-      interval_frequency: 1 // each unit is 6 seconds
+      interval_frequency: 1, // each unit is 6 seconds
+      current_batter: null,
+      current_game: null
     };
   },
   watch: {
@@ -432,19 +433,10 @@ export default {
       const day = ("0" + date.getDate()).slice(-2);
       const month = ("0" + (date.getMonth() + 1)).slice(-2);
       const year = date.getFullYear();
-      const url =
-        "//gd2.mlb.com/components/game/mlb/year_" +
-        year +
-        "/month_" +
-        month +
-        "/day_" +
-        day +
-        "/master_scoreboard.json?v=" +
-        new Date().getTime();
+      const url = `https://statsapi.mlb.com/api/v1/schedule?language=en&sportId=1&date=${month}/${day}/${year}&sortBy=gameDate&hydrate=linescore(matchup,runners),decisions`;
 
       axios.get(url).then(({ data }) => {
-        const games_from_mlb = data.data.games.game;
-        const active_inning_states = ["Top", "Bottom"];
+        const games_from_mlb = data.dates[0].games;
         console.log(games_from_mlb);
         let games = [];
         for (
@@ -454,64 +446,71 @@ export default {
         ) {
           const game = games_from_mlb[gameIndex];
           game.base_situation = get_base_situation(
-            game.runners_on_base ? game.runners_on_base.status : null
+            game.linescore ? game.linescore.offense : null
           );
           const championship_leverage_index =
             this.include_CLI === "Y"
-              ? window.games_CLI[game.home_name_abbrev]
+              ? window.games_CLI[
+                  window.teams.find(t => t.id === game.teams.home.team.id)
+                    .tbg_abbr
+                ]
               : 1;
           game.leverage_index =
-            game.status.inning && game.linescore
+            game.linescore &&
+            game.linescore.currentInning &&
+            window.game_status_inds[game.status.codedGameState]
+              .bottom_display === "current" &&
+            game.linescore.outs < 3
               ? championship_leverage_index *
                 window.LI[
-                  Math.min(game.status.inning, 9).toString() +
-                    (game.status.top_inning === "Y" ? 1 : 2).toString() +
+                  Math.min(game.linescore.currentInning, 9).toString() +
+                    (game.linescore.isTopInning === "true" ? 1 : 2).toString() +
                     game.base_situation.ordinal.toString() +
-                    game.status.o
+                    game.linescore.outs
                 ][
                   Math.min(
                     Math.max(
-                      parseInt(game.linescore.r.home) -
-                        parseInt(game.linescore.r.away),
+                      parseInt(game.linescore.teams.home.runs) -
+                        parseInt(game.linescore.teams.away.runs),
                       -10
                     ),
                     10
                   )
                 ]
               : 0;
-          game.base_situation = get_base_situation(
-            game.runners_on_base ? game.runners_on_base.status : null
-          );
           games.push(game);
         }
         Vue.set(this, "games", games);
         console.log(games);
+
+        // Checks if any games match priority list
+        priority_loop: for (var p = 0; p < this.priorities.length - 1; p++) {
+          // if (this.current_game === )
+        }
       });
     },
     sortGames(game1, game2) {
       if (
-        window.game_status_inds[game1.status.ind].sort_score ===
-        window.game_status_inds[game2.status.ind].sort_score
+        window.game_status_inds[game1.status.codedGameState].sort_score ===
+        window.game_status_inds[game2.status.codedGameState].sort_score
       ) {
         if (game1.leverage_index && game2.leverage_index) {
           return game1.leverage_index > game2.leverage_index ? -1 : 1;
         }
       } else {
-        return window.game_status_inds[game1.status.ind].sort_score >
-          window.game_status_inds[game2.status.ind].sort_score
+        return window.game_status_inds[game1.status.codedGameState].sort_score >
+          window.game_status_inds[game2.status.codedGameState].sort_score
           ? -1
           : 1;
       }
     }
   },
   computed: {
-    current_game() {
-      console.log("current_game NOT YET IMPLEMENTED");
-      return "";
-    },
     ordered_filtered_games() {
       const missed_statuses = this.games.filter(
-        g => typeof window.game_status_inds[g.status.ind] === "undefined"
+        g =>
+          typeof window.game_status_inds[g.status.codedGameState] ===
+          "undefined"
       );
       if (missed_statuses.length > 0) {
         console.log("MISSED STATUS", missed_statuses);
@@ -519,10 +518,10 @@ export default {
       return this.games
         .filter(
           game =>
-            window.game_status_inds[game.status.ind].main_display !==
+            window.game_status_inds[game.status.codedGameState].main_display !==
               "linescore" ||
-            game.status.inning_state === "Top" ||
-            game.status.inning_state === "Bottom"
+            game.linescore.inningState === "Top" ||
+            game.linescore.inningState === "Bottom"
         )
         .sort(this.sortGames);
     }
