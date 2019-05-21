@@ -255,7 +255,7 @@
                     <input
                       type="checkbox"
                       class="form__checkbox"
-                      v-model="priority.switch_immediately"
+                      v-model="priority.immediate"
                       :id="'immediate_' + (key + 1)"
                       :name="'immediate_' + (key + 1)"
                     />
@@ -300,7 +300,7 @@ export default {
       include_CLI: "N",
       delay: 5, // each unit is 1 second
       vid_player: "reg",
-      priorities: [{ type: "", data: "", switch_immediately: false }],
+      priorities: [{ type: "", data: "", immediate: false }],
       update_games_interval: null,
       update_games_interval_frequency: 1, // each unit is 6 seconds
       current_game: false,
@@ -321,22 +321,22 @@ export default {
     },
     ondeck: {
       handler: function(val, oldVal) {
-        localStorage.setItem("ondeck", val);
+        localStorage.setItem("GC-on_deck", val);
       }
     },
     include_CLI: {
       handler: function(val, oldVal) {
-        localStorage.setItem("include_CLI", val);
+        localStorage.setItem("GC-CLI", val);
       }
     },
     delay: {
       handler: function(val, oldVal) {
-        localStorage.setItem("delay", val);
+        localStorage.setItem("GC-delay", val);
       }
     },
     vid_player: {
       handler: function(val, oldVal) {
-        localStorage.setItem("vid_player", val);
+        localStorage.setItem("GC-vid", val);
       }
     },
     priorities: {
@@ -344,15 +344,15 @@ export default {
         if (
           val[val.length - 1].type !== "" ||
           val[val.length - 1].data !== "" ||
-          val[val.length - 1].switch_immediately !== false
+          val[val.length - 1].immediate !== false
         ) {
           this.priorities.push({
             type: "",
             data: "",
-            switch_immediately: false
+            immediate: false
           });
         }
-        localStorage.setItem("priorities", JSON.stringify(val));
+        localStorage.setItem("GC-priority", JSON.stringify(val));
         this.findCurrentGame();
       },
       deep: true
@@ -391,24 +391,32 @@ export default {
     if (localStorage.getItem("ignoredTeams")) {
       ignoredTeams = JSON.parse(localStorage.getItem("ignoredTeams"));
     }
-    this.teams = [...window.teams].map(t => {
-      t.ignore = ignoredTeams.indexOf(t.id) > -1;
-      return t;
+    Vue.nextTick(() => {
+      this.teams = [...window.teams].map(t => {
+        t.ignore = ignoredTeams.indexOf(t.id) > -1;
+        return t;
+      });
     });
-    if (localStorage.getItem("priorities")) {
-      this.priorities = JSON.parse(localStorage.getItem("priorities"));
+    if (localStorage.getItem("GC-priority")) {
+      this.priorities = JSON.parse(localStorage.getItem("GC-priority")).map(
+        p => {
+          // Convert empty string to `false`, "true" to `true`
+          p.immediate = !!p.immediate;
+          return p;
+        }
+      );
     }
-    if (localStorage.getItem("ondeck")) {
-      this.ondeck = localStorage.getItem("ondeck");
+    if (localStorage.getItem("GC-on_deck")) {
+      this.ondeck = localStorage.getItem("GC-on_deck");
     }
-    if (localStorage.getItem("include_CLI")) {
-      this.include_CLI = localStorage.getItem("include_CLI");
+    if (localStorage.getItem("GC-CLI")) {
+      this.include_CLI = localStorage.getItem("GC-CLI");
     }
-    if (localStorage.getItem("delay")) {
-      this.delay = localStorage.getItem("delay");
+    if (localStorage.getItem("GC-delay")) {
+      this.delay = localStorage.getItem("GC-delay");
     }
-    if (localStorage.getItem("vid_player")) {
-      this.vid_player = localStorage.getItem("vid_player");
+    if (localStorage.getItem("GC-vid")) {
+      this.vid_player = localStorage.getItem("GC-vid");
     }
     if (localStorage.getItem("update_games_interval_frequency")) {
       this.update_games_interval_frequency = localStorage.getItem(
@@ -620,7 +628,7 @@ export default {
             this.games.find(g => g.gamePk === self.current_game.gamePk)
               .linescore.offense.batter.id !==
               this.current_game.linescore.offense.batter.id) ||
-          priority.switch_immediately
+          priority.immediate
         ) {
           for (var gameIndex = 0; gameIndex < this.games.length; gameIndex++) {
             let game = this.games[gameIndex];
@@ -641,7 +649,10 @@ export default {
               this.current_game.leverage_index + 0.5) ||
             reason_priority.type !== "no-preference-items-were-met")
         ) {
-          current_game = { ...this.ordered_filtered_games[0] };
+          current_game =
+            this.ordered_filtered_games.length > 0
+              ? { ...this.ordered_filtered_games[0] }
+              : null;
           reason_priority = { type: "no-preference-items-were-met" };
         }
       }
@@ -649,6 +660,12 @@ export default {
       this.reason_priority = reason_priority;
     },
     gameAndPriorityMatch(game, priority) {
+      if (
+        this.teams.find(g => g.id == game.teams.away.team.id).ignore ||
+        this.teams.find(g => g.id == game.teams.home.team.id).ignore
+      ) {
+        return false;
+      }
       switch (priority.type) {
         case "bat":
           return (
@@ -664,40 +681,56 @@ export default {
               game.linescore.outs < 2)
           );
         case "pit":
-          return priority.data === game.linescore.defense.pitcher.id;
+          return (
+            !!game.linescore &&
+            !!game.linescore.defense &&
+            !!game.linescore.defense.pitcher &&
+            priority.data === game.linescore.defense.pitcher.id
+          );
         case "run":
           return (
-            (game.linescore.offense.first &&
+            !!game.linescore &&
+            !!game.linescore.offense &&
+            ((game.linescore.offense.first &&
               priority.data == game.linescore.offense.first.id) ||
-            (game.linescore.offense.second &&
-              priority.data == game.linescore.offense.second.id) ||
-            (game.linescore.offense.third &&
-              priority.data == game.linescore.offense.third.id)
+              (game.linescore.offense.second &&
+                priority.data == game.linescore.offense.second.id) ||
+              (game.linescore.offense.third &&
+                priority.data == game.linescore.offense.third.id))
           );
         case "team":
           return (
-            priority.data == game.teams.away.team.id ||
-            priority.data == game.teams.home.team.id
+            !!game.teams &&
+            !!game.teams.away &&
+            !!game.teams.home &&
+            (priority.data == game.teams.away.team.id ||
+              priority.data == game.teams.home.team.id)
           );
         case "team_bat":
           return (
-            (priority.data == game.teams.away.team.id &&
+            !!game.teams &&
+            !!game.teams.away &&
+            !!game.teams.home &&
+            ((priority.data == game.teams.away.team.id &&
               game.linescore.inningHalf === "Top") ||
-            (priority.data == game.teams.home.team.id &&
-              game.linescore.inningHalf === "Bottom")
+              (priority.data == game.teams.home.team.id &&
+                game.linescore.inningHalf === "Bottom"))
           );
         case "team_pit":
           return (
-            (priority.data == game.teams.home.team.id &&
+            !!game.teams &&
+            !!game.teams.away &&
+            !!game.teams.home &&
+            ((priority.data == game.teams.home.team.id &&
               game.linescore.inningHalf === "Top") ||
-            (priority.data == game.teams.away.team.id &&
-              game.linescore.inningHalf === "Bottom")
+              (priority.data == game.teams.away.team.id &&
+                game.linescore.inningHalf === "Bottom"))
           );
         case "LI":
           return game.leverage_index >= priority.data;
         case "NoNo":
           return (
-            game.linescore &&
+            !!game.linescore &&
             (game.linescore.currentInning > parseInt(priority.data) &&
               ((game.linescore.inningHalf === "Top" &&
                 game.linescore.teams.away.hits === 0) ||
@@ -708,15 +741,20 @@ export default {
           let inning = parseInt(priority.data.substring(7, 1));
           if (priority.data.substring(-3) === "tie") {
             return (
-              game.linescore.teams.away.runs ===
+              !!game.linescore &&
+              !!game.linescore.teams &&
+              (game.linescore.teams.away.runs ===
                 game.linescore.teams.home.runs &&
-              game.linescore.currentInning > inning
+                game.linescore.currentInning > inning)
             );
           } else if (priority.data.substring(-3) === "run") {
             return (
-              Math.abs(
+              !!game.linescore &&
+              !!game.linescore.teams &&
+              (Math.abs(
                 game.linescore.teams.away.runs - game.linescore.teams.home.runs
-              ) <= 1 && game.linescore.currentInning > inning
+              ) <= 1 &&
+                game.linescore.currentInning > inning)
             );
           } else {
             console.log("Bad Game Situation ", priority);
@@ -752,6 +790,24 @@ export default {
   },
   computed: {
     ordered_filtered_games() {
+      let leverage_index_thresholds = [
+        { display: ">= 10.0", id: 10 },
+        { display: ">= 9.0", id: 9 },
+        { display: ">= 8.0", id: 8 },
+        { display: ">= 7.0", id: 7 },
+        { display: ">= 6.0", id: 6 },
+        { display: ">= 5.0", id: 5 },
+        { display: ">= 4.5", id: 4.5 },
+        { display: ">= 4.0", id: 4.0 },
+        { display: ">= 3.5", id: 3.5 },
+        { display: ">= 3.0", id: 3.0 },
+        { display: ">= 2.5", id: 2.5 },
+        { display: ">= 2.0", id: 2.0 },
+        { display: ">= 1.5", id: 1.5 },
+        { display: ">= 1.0", id: 1.0 },
+        { display: ">= 0.5", id: 0.5 },
+        { display: ">= 0.0", id: 0 }
+      ];
       const missed_statuses = this.games.filter(
         g =>
           typeof window.game_status_inds[g.status.codedGameState] ===
