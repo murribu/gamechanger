@@ -1,14 +1,28 @@
 <template>
   <div>
     <div class="GC-save-settings">
-      <button id="launch">Launch Video</button>
+      <button id="launch" @click.prevent="launch" v-if="!video_launched">
+        Launch Video
+      </button>
     </div>
     <br />
     <div class="GC-notes">
       <a href="#FAQ">Requirements / Instructions</a>
     </div>
     <br />
-    <div id="current_game">{{ current_game }}</div>
+    <div id="current_game" v-if="current_game">
+      <div class="GC-current-game">
+        <h3 class="GC-settings-title">Currently Showing</h3>
+        {{ currentlyShowing }}<br /><span
+          v-if="reason_priority.type === 'no-preference-items-were-met'"
+          >Highest leverage game<br />No priority items were met</span
+        ><span v-if="reason_priority.type !== 'no-preference-items-were-met'"
+          >{{ currentPriorityDescription }}<br />Priority #{{
+            currentPriorityIndex + 1
+          }}</span
+        >
+      </div>
+    </div>
 
     <div class="GC-settings">
       <h3 class="GC-settings-title">Games</h3>
@@ -69,7 +83,9 @@
                   :value="true"
                   v-model="team.ignore"
                 />
-                <label :for="'x' + team.id"><span></span> {{ team.id }}</label>
+                <label :for="'x' + team.id"
+                  ><span></span> {{ team.tbg_abbr }}</label
+                >
               </div>
             </div>
             <div class="league-ignore">
@@ -85,7 +101,9 @@
                   :value="true"
                   v-model="team.ignore"
                 />
-                <label :for="'x' + team.id"><span></span>{{ team.id }}</label>
+                <label :for="'x' + team.id"
+                  ><span></span> {{ team.tbg_abbr }}</label
+                >
               </div>
             </div>
           </div>
@@ -138,14 +156,14 @@
           <h3 class="GC-settings-title">Update Frequency</h3>
           <select
             class="form__dropdown-select"
-            id="interval_frequency"
-            name="interval_frequency"
-            v-model="interval_frequency"
+            id="update_games_interval_frequency"
+            name="update_games_interval_frequency"
+            v-model="update_games_interval_frequency"
           >
             <option :value="n" v-for="n in 10">{{ n * 6 }} seconds</option>
           </select>
           <br />
-          * How often the games update
+          * How often the game data updates
         </div>
         <div class="GC-settings">
           <h3 class="GC-settings-title">Video Player</h3>
@@ -222,13 +240,13 @@
                   </div>
                   <div class="GC-priority__data-container">
                     <select
-                      v-model="priority.object"
+                      v-model="priority.data"
                       class="form__dropdown-select"
                     >
                       <option
-                        :value="object.id"
-                        v-for="object in priorityObjects(priority.type)"
-                        >{{ object.display }}</option
+                        :value="data.id"
+                        v-for="data in priorityDataForDropdown(priority.type)"
+                        >{{ data.display }}</option
                       >
                     </select>
                   </div>
@@ -279,22 +297,25 @@ export default {
       games: [],
       ondeck: "N",
       include_CLI: "N",
-      delay: 5,
+      delay: 5, // each unit is 1 second
       vid_player: "reg",
-      priorities: [{ type: "", object: "", switch_immediately: false }],
-      interval: null,
-      interval_frequency: 1, // each unit is 6 seconds
-      current_batter: null,
-      current_game: null
+      priorities: [{ type: "", data: "", switch_immediately: false }],
+      update_games_interval: null,
+      update_games_interval_frequency: 1, // each unit is 6 seconds
+      current_game: false,
+      reason_priority: null,
+      check_child_interval: null,
+      check_child_interval_frequency: 500, // each unit is 1 millisecond
+      video_launched: false
     };
   },
   watch: {
-    interval_frequency: function(val, oldVal) {
-      clearInterval(this.interval);
-      this.interval = setInterval(() => {
+    update_games_interval_frequency: function(val, oldVal) {
+      clearInterval(this.update_games_interval);
+      this.update_games_interval = setInterval(() => {
         this.updateGames();
-      }, this.interval_frequency * 6000);
-      localStorage.setItem("interval_frequency", val);
+      }, this.update_games_interval_frequency * 6000);
+      localStorage.setItem("update_games_interval_frequency", val);
     },
     ondeck: {
       handler: function(val, oldVal) {
@@ -320,16 +341,17 @@ export default {
       handler: function(val, oldVal) {
         if (
           val[val.length - 1].type !== "" ||
-          val[val.length - 1].object !== "" ||
+          val[val.length - 1].data !== "" ||
           val[val.length - 1].switch_immediately !== false
         ) {
           this.priorities.push({
             type: "",
-            object: "",
+            data: "",
             switch_immediately: false
           });
         }
         localStorage.setItem("priorities", JSON.stringify(val));
+        this.findCurrentGame();
       },
       deep: true
     },
@@ -346,6 +368,35 @@ export default {
             }, [])
           )
         );
+      },
+      deep: true
+    },
+    current_game: {
+      handler: function(val, oldVal) {
+        let game_url = "";
+        if (this.vid_player === "old") {
+          // ************ TODO: Set the calendar_event_id on each game
+          game_url =
+            "http://mlb.mlb.com/shared/flash/mediaplayer/v4.5/R8/MP4.jsp?calendar_event_id=" +
+            val.calendar_event_id +
+            "&media_id=&view_key=&media_type=video&source=MLB&sponsor=MLB&clickOrigin=Media+Grid&affiliateId=Media+Grid&team=mlb";
+        } else {
+          game_url = "https://www.mlb.com/tv/g" + val.game_pk;
+        }
+
+        setTimeout(
+          () =>
+            this.game_window
+              ? (this.game_window.location.href = game_url)
+              : null,
+          this.delay * 1000
+        );
+      },
+      deep: true
+    },
+    games: {
+      handler: function(val, oldVal) {
+        this.findCurrentGame();
       },
       deep: true
     }
@@ -374,13 +425,15 @@ export default {
     if (localStorage.getItem("vid_player")) {
       this.vid_player = localStorage.getItem("vid_player");
     }
-    if (localStorage.getItem("interval_frequency")) {
-      this.interval_frequency = localStorage.getItem("interval_frequency");
+    if (localStorage.getItem("update_games_interval_frequency")) {
+      this.update_games_interval_frequency = localStorage.getItem(
+        "update_games_interval_frequency"
+      );
     }
     this.updateGames();
-    this.interval = setInterval(() => {
+    this.update_games_interval = setInterval(() => {
       this.updateGames();
-    }, this.interval_frequency * 6000);
+    }, this.update_games_interval_frequency * 6000);
   },
   methods: {
     ordered_teams_by_league(league) {
@@ -388,7 +441,7 @@ export default {
         .filter(t => t.league === league)
         .sort((a, b) => (a.abbr > b.abbr ? -1 : 1));
     },
-    priorityObjects(type) {
+    priorityDataForDropdown(type) {
       var retVal = [];
       // var type = "bat";
       switch (type) {
@@ -437,7 +490,6 @@ export default {
 
       axios.get(url).then(({ data }) => {
         const games_from_mlb = data.dates[0].games;
-        console.log(games_from_mlb);
         let games = [];
         for (
           var gameIndex = 0;
@@ -482,11 +534,6 @@ export default {
         }
         Vue.set(this, "games", games);
         console.log(games);
-
-        // Checks if any games match priority list
-        priority_loop: for (var p = 0; p < this.priorities.length - 1; p++) {
-          // if (this.current_game === )
-        }
       });
     },
     sortGames(game1, game2) {
@@ -502,6 +549,94 @@ export default {
           window.game_status_inds[game2.status.codedGameState].sort_score
           ? -1
           : 1;
+      }
+    },
+    launch() {
+      this.video_launched = true;
+      this.game_window = window.open("", "mlb.tv");
+      this.check_child_interval = setInterval(
+        () => this.checkChild(),
+        this.check_child_interval_frequency
+      );
+    },
+    checkChild() {
+      if (this.game_window.closed) {
+        this.video_launched = false;
+        clearInterval(this.check_child_interval);
+      }
+    },
+    findCurrentGame() {
+      console.log("Choosing Which Game to Switch To: NOT YET IMPLEMENTED");
+      let self = this;
+      let current_game = false;
+      let reason_priority = false;
+
+      // Checks if any games match priority list
+      priority_loop: for (
+        var priorityIndex = 0;
+        priorityIndex < this.priorities.length;
+        priorityIndex++
+      ) {
+        let priority = this.priorities[priorityIndex];
+        if (
+          !this.current_game ||
+          this.games.find(g => g.gamePk === self.current_game.gamePk).linescore
+            .offense.batter.id !==
+            this.current_game.linescore.offense.batter.id ||
+          priority.switch_immediately
+        ) {
+          for (var gameIndex = 0; gameIndex < this.games.length; gameIndex++) {
+            let game = this.games[gameIndex];
+            if (this.gameAndPriorityMatch(game, priority)) {
+              current_game = { ...game };
+              reason_priority = { ...priority };
+              break priority_loop;
+            }
+          }
+        }
+      }
+      // if no preference items were met
+      if (!current_game) {
+        if (
+          this.ordered_filtered_games.length > 0 &&
+          ((reason_priority.type === "no-preference-items-were-met" &&
+            ordered_filtered_games[0].leverage_index >
+              this.current_game.leverage_index + 0.5) ||
+            reason_priority.type !== "no-preference-items-were-met")
+        ) {
+          current_game = { ...this.ordered_filtered_games[0] };
+          reason_priority = { type: "no-preference-items-were-met" };
+        }
+      }
+      this.current_game = current_game;
+      this.reason_priority = reason_priority;
+    },
+    gameAndPriorityMatch(game, priority) {
+      switch (priority.type) {
+        case "bat":
+          return (
+            (!!game.linescore &&
+              !!game.linescore.offense &&
+              !!game.linescore.offense.batter &&
+              priority.data == game.linescore.offense.batter.id) ||
+            (!!game.linescore &&
+              !!game.linescore.offense &&
+              !!game.linescore.ondeck &&
+              priority.data == game.linescore.offense.ondeck.id &&
+              this.ondeck === "Y" &&
+              game.linescore.outs < 2)
+          );
+        case "pit":
+          return priority.data === game.linescore.defense.pitcher.id;
+        case "run":
+          console.log("gameAndPriorityMatch `run` NOT YET IMPLEMENTED");
+          return false;
+        default:
+          console.log(
+            "Priority Type " + priority.type + ": NOT YET IMPLEMENTED"
+          );
+          return false;
+          break;
       }
     }
   },
@@ -524,6 +659,63 @@ export default {
             game.linescore.inningState === "Bottom"
         )
         .sort(this.sortGames);
+    },
+    currentPriorityIndex() {
+      return this.priorities
+        ? this.priorities.findIndex(
+            priority =>
+              priority.type === this.reason_priority.type &&
+              priority.data === this.reason_priority.data
+          )
+        : null;
+    },
+    currentPriorityDescription() {
+      if (this.current_game && this.reason_priority) {
+        switch (this.reason_priority.type) {
+          case "bat":
+            if (
+              this.current_game.linescore.offense.batter &&
+              this.reason_priority.data ==
+                this.current_game.linescore.offense.batter.id
+            ) {
+              return (
+                this.current_game.linescore.offense.batter.fullName + " at bat"
+              );
+            } else if (
+              this.current_game.linescore.offense.ondeck &&
+              this.reason_priority.data ==
+                this.current_game.linescore.offense.ondeck.id
+            ) {
+              return (
+                this.current_game.linescore.offense.ondeck.fullName + " on deck"
+              );
+            }
+            return "";
+          case "pit":
+            return this.current_game.linescore.defense.pitcher.id + " pitching";
+          case "run":
+          case "LI":
+          case "team":
+          case "team_bat":
+          case "team_pit":
+          case "NoNo":
+          case "GameSit":
+          case "Misc":
+          default:
+            return "NOT IMPLEMENTED";
+        }
+      } else {
+        return "";
+      }
+    },
+    currentlyShowing() {
+      return this.teams && this.current_game
+        ? this.teams.find(t => t.id == this.current_game.teams.away.team.id)
+            .tbg_abbr +
+            " @ " +
+            this.teams.find(t => t.id == this.current_game.teams.home.team.id)
+              .tbg_abbr
+        : "";
     }
   },
   components: { Game, draggable }

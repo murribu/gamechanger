@@ -1804,7 +1804,14 @@ window.game_status_inds = {
 		challenge: true
 	},
 	MF: {
-		description: "Manager Challenge: Close play at 1st",
+		description: "Manager Challenge",
+		sort_score: 100,
+		main_display: "linescore",
+		bottom_display: "current",
+		challenge: true
+	},
+	M: {
+		description: "Manager Challenge",
 		sort_score: 100,
 		main_display: "linescore",
 		bottom_display: "current",

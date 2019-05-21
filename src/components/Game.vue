@@ -21,7 +21,7 @@
       </thead>
       <thead v-if="main_display === 'preview'">
         <tr>
-          <th width="100">{{ gameDate }}</th>
+          <th width="100">{{ game_time }}</th>
           <th width="60">W - L</th>
         </tr>
       </thead>
@@ -80,7 +80,7 @@
     </div>
     <div class="GC-game-info" v-if="bottom_display === 'current'">
       Leverage Index: {{ leverage_index.toFixed(2) }}<br />Pitching:
-      {{ linescore ? linescore.offense.pitcher.fullName : "" }}<br />At Bat:
+      {{ linescore ? linescore.defense.pitcher.fullName : "" }}<br />At Bat:
       {{ linescore ? linescore.offense.batter.fullName : "" }}<br />
       On Deck: {{ linescore ? linescore.offense.onDeck.fullName : "" }}
     </div>
@@ -123,7 +123,7 @@ export default {
       return window.game_status_inds[this.status.codedGameState].bottom_display;
     },
     game_time() {
-      return moment(this["game-date"]).format("LT");
+      return moment(this.gameDate).format("LT");
     }
   }
 };
