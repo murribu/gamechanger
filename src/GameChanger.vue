@@ -10,7 +10,7 @@
       <a href="#FAQ">Requirements / Instructions</a>
     </div>
     <br />
-    <div id="current_game" v-if="current_game">
+    <div id="current_game" v-if="current_game && video_launched">
       <div class="GC-current-game">
         <h3 class="GC-settings-title">Currently Showing</h3>
         {{ currentlyShowing }}<br /><span
@@ -30,7 +30,7 @@
         <Game
           v-for="(game, key) in ordered_filtered_games"
           v-bind="game"
-          :highlighted="game.game_pk === current_game"
+          :highlighted="video_launched && game.gamePk === current_game.gamePk"
           :key="key"
         ></Game>
       </div>
@@ -373,24 +373,7 @@ export default {
     },
     current_game: {
       handler: function(val, oldVal) {
-        let game_url = "";
-        if (this.vid_player === "old") {
-          // ************ TODO: Set the calendar_event_id on each game
-          game_url =
-            "http://mlb.mlb.com/shared/flash/mediaplayer/v4.5/R8/MP4.jsp?calendar_event_id=" +
-            val.calendar_event_id +
-            "&media_id=&view_key=&media_type=video&source=MLB&sponsor=MLB&clickOrigin=Media+Grid&affiliateId=Media+Grid&team=mlb";
-        } else {
-          game_url = "https://www.mlb.com/tv/g" + val.game_pk;
-        }
-
-        setTimeout(
-          () =>
-            this.game_window
-              ? (this.game_window.location.href = game_url)
-              : null,
-          this.delay * 1000
-        );
+        this.setGameWindowUrl();
       },
       deep: true
     },
@@ -554,9 +537,29 @@ export default {
     launch() {
       this.video_launched = true;
       this.game_window = window.open("", "mlb.tv");
+      this.setGameWindowUrl();
       this.check_child_interval = setInterval(
         () => this.checkChild(),
         this.check_child_interval_frequency
+      );
+    },
+    setGameWindowUrl() {
+      let game_url = "";
+      if (this.vid_player === "old") {
+        game_url =
+          "http://mlb.mlb.com/shared/flash/mediaplayer/v4.5/R8/MP4.jsp?calendar_event_id=" +
+          this.current_game.calendarEventId +
+          "&media_id=&view_key=&media_type=video&source=MLB&sponsor=MLB&clickOrigin=Media+Grid&affiliateId=Media+Grid&team=mlb";
+      } else {
+        game_url = "https://www.mlb.com/tv/g" + this.current_game.gamePk;
+      }
+
+      setTimeout(
+        () =>
+          this.game_window && this.video_launched
+            ? (this.game_window.location.href = game_url)
+            : null,
+        this.delay * 1000
       );
     },
     checkChild() {
@@ -566,7 +569,6 @@ export default {
       }
     },
     findCurrentGame() {
-      console.log("Choosing Which Game to Switch To: NOT YET IMPLEMENTED");
       let self = this;
       let current_game = false;
       let reason_priority = false;
@@ -580,9 +582,10 @@ export default {
         let priority = this.priorities[priorityIndex];
         if (
           !this.current_game ||
-          this.games.find(g => g.gamePk === self.current_game.gamePk).linescore
-            .offense.batter.id !==
-            this.current_game.linescore.offense.batter.id ||
+          (this.games.find(g => g.gamePk === self.current_game.gamePk) &&
+            this.games.find(g => g.gamePk === self.current_game.gamePk)
+              .linescore.offense.batter.id !==
+              this.current_game.linescore.offense.batter.id) ||
           priority.switch_immediately
         ) {
           for (var gameIndex = 0; gameIndex < this.games.length; gameIndex++) {
@@ -629,8 +632,78 @@ export default {
         case "pit":
           return priority.data === game.linescore.defense.pitcher.id;
         case "run":
-          console.log("gameAndPriorityMatch `run` NOT YET IMPLEMENTED");
-          return false;
+          return (
+            (game.linescore.offense.first &&
+              priority.data == game.linescore.offense.first.id) ||
+            (game.linescore.offense.second &&
+              priority.data == game.linescore.offense.second.id) ||
+            (game.linescore.offense.third &&
+              priority.data == game.linescore.offense.third.id)
+          );
+        case "team":
+          return (
+            priority.data == game.teams.away.team.id ||
+            priority.data == game.teams.home.team.id
+          );
+        case "team_bat":
+          return (
+            (priority.data == game.teams.away.team.id &&
+              game.linescore.inningHalf === "Top") ||
+            (priority.data == game.teams.home.team.id &&
+              game.linescore.inningHalf === "Bottom")
+          );
+        case "team_pit":
+          return (
+            (priority.data == game.teams.home.team.id &&
+              game.linescore.inningHalf === "Top") ||
+            (priority.data == game.teams.away.team.id &&
+              game.linescore.inningHalf === "Bottom")
+          );
+        case "LI":
+          return game.leverage_index >= priority.data;
+        case "NoNo":
+          return (
+            game.linescore.currentInning > parseInt(priority.data) &&
+            ((game.linescore.inningHalf === "Top" &&
+              game.linescore.teams.away.hits === 0) ||
+              (game.linescore.inningHalf === "Bottom" &&
+                game.linescore.teams.home.hits === 0))
+          );
+        case "GameSit":
+          let inning = parseInt(priority.data.substring(7, 1));
+          if (priority.data.substring(-3) === "tie") {
+            return (
+              game.linescore.teams.away.runs ===
+                game.linescore.teams.home.runs &&
+              game.linescore.currentInning > inning
+            );
+          } else if (priority.data.substring(-3) === "run") {
+            return (
+              Math.abs(
+                game.linescore.teams.away.runs - game.linescore.teams.home.runs
+              ) <= 1 && game.linescore.currentInning > inning
+            );
+          } else {
+            console.log("Bad Game Situation ", priority);
+          }
+        case "Misc":
+          switch (priority.data) {
+            case "PosP_pit":
+              return (
+                window.posPlayers[game.linescore.defense.pitcher.id] === "PosP"
+              );
+            case "extra":
+              return game.linescore.currentInning > 9;
+            case "replay":
+              return (
+                !!window.game_status_inds[g.status.codedGameState] &&
+                window.game_status_inds[g.status.codedGameState].challenge
+              );
+            case "21Ks":
+              console.log("21Ks NOT YET IMPLEMENTED");
+              //if a starting pitcher has gone at least four innings, struck out more than two batters per inning, and his pitch count is no more than six times his strikeout total
+              return;
+          }
         default:
           console.log(
             "Priority Type " + priority.type + ": NOT YET IMPLEMENTED"
@@ -692,17 +765,107 @@ export default {
             }
             return "";
           case "pit":
-            return this.current_game.linescore.defense.pitcher.id + " pitching";
+            return (
+              this.current_game.linescore.defense.pitcher.fullName + " pitching"
+            );
           case "run":
-          case "LI":
+            if (
+              this.current_game.linescore.offense.first &&
+              this.current_game.linescore.offense.first ==
+                this.reason_priority.data
+            ) {
+              return (
+                this.current_game.linescore.offense.first.fullName + " on first"
+              );
+            } else if (
+              this.current_game.linescore.offense.second &&
+              this.current_game.linescore.offense.second ==
+                this.reason_priority.data
+            ) {
+              return (
+                this.current_game.linescore.offense.second.fullName +
+                " on second"
+              );
+            } else if (
+              this.current_game.linescore.offense.third &&
+              this.current_game.linescore.offense.third ==
+                this.reason_priority.data
+            ) {
+              return (
+                this.current_game.linescore.offense.third.fullName + " on third"
+              );
+            } else {
+              return "";
+            }
           case "team":
+            return (
+              this.teams.find(t => t.id == this.reason_priority.data).name +
+              " playing"
+            );
           case "team_bat":
+            return (
+              (this.current_game.linescore.inningHalf === "Bottom"
+                ? this.teams.find(
+                    t => t.id == this.current_game.teams.home.team.id
+                  ).name
+                : this.teams.find(
+                    t => t.id == this.current_game.teams.away.team.id
+                  ).name) + " batting"
+            );
           case "team_pit":
+            return (
+              (this.current_game.linescore.inningHalf === "Bottom"
+                ? this.teams.find(
+                    t => t.id == this.current_game.teams.away.team.id
+                  ).name
+                : this.teams.find(
+                    t => t.id == this.current_game.teams.home.team.id
+                  ).name) + " batting"
+            );
+          case "LI":
+            return "leverage index >= " + this.reason_priority.data;
           case "NoNo":
+            return "No-Hitter through " + this.reason_priority.data;
           case "GameSit":
+            let inning = parseInt(this.reason_priority.data.substring(7, 1));
+            return (
+              (this.reason_priority.data.substring(-3) === "tie"
+                ? "Tie game through "
+                : "One-run game through ") +
+              inning +
+              " innings"
+            );
           case "Misc":
+            switch (this.reason_priority.data) {
+              case "PosP_pit":
+                return (
+                  "Position player pitching (" +
+                  this.current_game.linescore.defense.pitcher.fullName +
+                  ")"
+                );
+              case "extra":
+                return "Extra-inning game";
+              case "replay":
+                console.log("REPLAY CHALLENGE: GO FIND THE DESCRIPTION");
+                return "Replay challenge";
+              case "21Ks":
+                return (
+                  "Chance at 21 Strikeouts (" +
+                  this.current_game.linescore.defense.pitcher.fullName +
+                  ")"
+                );
+              default:
+                console.log("Missed Misc case: ", this.reason_priority);
+                return "";
+            }
+
           default:
-            return "NOT IMPLEMENTED";
+            console.log(
+              "Priority Type `" +
+                this.reason_priority.type +
+                "` not yet implemented"
+            );
+            return "NOT YET IMPLEMENTED";
         }
       } else {
         return "";

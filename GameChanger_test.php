@@ -186,7 +186,8 @@ $NoNo = array(
 $Misc = array(
 	array('display' => 'Position Player Pitching', 'id' => 'PosP_pit'),
 	array('display' => 'Extra Innings', 'id' => 'extra'),
-	array('display' => 'Replay Challenge/Review', 'id' => 'replay')
+	array('display' => 'Replay Challenge/Review', 'id' => 'replay'),
+	array('display' => 'Chance for 21 Ks', 'id' => '21Ks')
 );
 
 $GameSit = array(
