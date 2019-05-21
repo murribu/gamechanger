@@ -1784,21 +1784,21 @@ window.game_status_inds = {
 		challenge: false
 	},
 	MC: {
-		description: "",
+		description: "Manager Challenge",
 		sort_score: 100,
 		main_display: "linescore",
 		bottom_display: "current",
 		challenge: true
 	},
 	MA: {
-		description: "",
+		description: "Manager Challenge",
 		sort_score: 100,
 		main_display: "linescore",
 		bottom_display: "current",
 		challenge: true
 	},
 	MI: {
-		description: "",
+		description: "Manager Challenge",
 		sort_score: 100,
 		main_display: "linescore",
 		bottom_display: "current",
@@ -1849,6 +1849,13 @@ window.game_status_inds = {
 	S: {
 		description: "Suspended",
 		sort_score: 70,
+		main_display: "preview",
+		bottom_display: "none",
+		challenge: false
+	},
+	D: {
+		description: "Game Postponed",
+		sort_score: 60,
 		main_display: "preview",
 		bottom_display: "none",
 		challenge: false

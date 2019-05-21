@@ -31,6 +31,7 @@
           v-for="(game, key) in ordered_filtered_games"
           v-bind="game"
           :highlighted="video_launched && game.gamePk === current_game.gamePk"
+          :probable_pitchers="probable_pitchers[game.gamePk]"
           :key="key"
         ></Game>
       </div>
@@ -306,7 +307,8 @@ export default {
       reason_priority: null,
       check_child_interval: null,
       check_child_interval_frequency: 500, // each unit is 1 millisecond
-      video_launched: false
+      video_launched: false,
+      probable_pitchers: {}
     };
   },
   watch: {
@@ -413,12 +415,44 @@ export default {
         "update_games_interval_frequency"
       );
     }
+    this.getProbablePitchers();
     this.updateGames();
     this.update_games_interval = setInterval(() => {
       this.updateGames();
     }, this.update_games_interval_frequency * 6000);
   },
   methods: {
+    getProbablePitchers() {
+      const user_date = new Date();
+      const user_time = user_date.getTime();
+      const user_offset = user_date.getTimezoneOffset() * 60000;
+      const utc = user_time + user_offset;
+      const western_time = utc + 3600000 * -8;
+      const date = new Date(western_time);
+
+      const day = ("0" + date.getDate()).slice(-2);
+      const month = ("0" + (date.getMonth() + 1)).slice(-2);
+      const year = date.getFullYear();
+      const url = `https://statsapi.mlb.com/api/v1/schedule?language=en&sportId=1&date=${month}/${day}/${year}&sortBy=gameDate&hydrate=probablePitcher`;
+      axios.get(url).then(({ data }) => {
+        const games_from_mlb = data.dates[0].games;
+        for (
+          var gameIndex = 0;
+          gameIndex < games_from_mlb.length;
+          gameIndex++
+        ) {
+          let game = games_from_mlb[gameIndex];
+          this.probable_pitchers[game.gamePk] = {
+            away: game.teams.away.probablePitcher
+              ? game.teams.away.probablePitcher.fullName
+              : "TBD",
+            home: game.teams.home.probablePitcher
+              ? game.teams.home.probablePitcher.fullName
+              : "TBD"
+          };
+        }
+      });
+    },
     ordered_teams_by_league(league) {
       return this.teams
         .filter(t => t.league === league)
@@ -663,11 +697,12 @@ export default {
           return game.leverage_index >= priority.data;
         case "NoNo":
           return (
-            game.linescore.currentInning > parseInt(priority.data) &&
-            ((game.linescore.inningHalf === "Top" &&
-              game.linescore.teams.away.hits === 0) ||
-              (game.linescore.inningHalf === "Bottom" &&
-                game.linescore.teams.home.hits === 0))
+            game.linescore &&
+            (game.linescore.currentInning > parseInt(priority.data) &&
+              ((game.linescore.inningHalf === "Top" &&
+                game.linescore.teams.away.hits === 0) ||
+                (game.linescore.inningHalf === "Bottom" &&
+                  game.linescore.teams.home.hits === 0)))
           );
         case "GameSit":
           let inning = parseInt(priority.data.substring(7, 1));
@@ -704,6 +739,8 @@ export default {
               //if a starting pitcher has gone at least four innings, struck out more than two batters per inning, and his pitch count is no more than six times his strikeout total
               return;
           }
+        case "":
+          return;
         default:
           console.log(
             "Priority Type " + priority.type + ": NOT YET IMPLEMENTED"
@@ -858,7 +895,8 @@ export default {
                 console.log("Missed Misc case: ", this.reason_priority);
                 return "";
             }
-
+          case "":
+            return;
           default:
             console.log(
               "Priority Type `" +

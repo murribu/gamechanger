@@ -12,21 +12,21 @@ window.game_status_inds = {
     challenge: false
   },
   MC: {
-    description: "",
+    description: "Manager Challenge",
     sort_score: 100,
     main_display: "linescore",
     bottom_display: "current",
     challenge: true
   },
   MA: {
-    description: "",
+    description: "Manager Challenge",
     sort_score: 100,
     main_display: "linescore",
     bottom_display: "current",
     challenge: true
   },
   MI: {
-    description: "",
+    description: "Manager Challenge",
     sort_score: 100,
     main_display: "linescore",
     bottom_display: "current",
@@ -71,35 +71,42 @@ window.game_status_inds = {
     description: "Postponed because of weather",
     sort_score: 70,
     main_display: "preview",
-    bottom_display: "none",
+    bottom_display: "description",
     challenge: false
   },
   S: {
     description: "Suspended",
     sort_score: 70,
     main_display: "preview",
-    bottom_display: "none",
+    bottom_display: "description",
+    challenge: false
+  },
+  D: {
+    description: "Postponed",
+    sort_score: 60,
+    main_display: "preview",
+    bottom_display: "description",
     challenge: false
   },
   DR: {
     description: "Game Postponed",
     sort_score: 60,
     main_display: "preview",
-    bottom_display: "none",
+    bottom_display: "description",
     challenge: false
   },
   Delayed: {
     description: "Delayed",
     sort_score: 95,
     main_display: "linescore",
-    bottom_display: "current",
+    bottom_display: "description",
     challenge: false
   },
   IR: {
     description: "Injury Delay",
     sort_score: 90,
     main_display: "linescore",
-    bottom_display: "none",
+    bottom_display: "description",
     challenge: false
   }
 };

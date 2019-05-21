@@ -73,6 +73,16 @@
         </tr>
       </tbody>
     </table>
+    <div class="GC-game-info" v-if="bottom_display === 'description'">
+      {{ description }}
+    </div>
+    <div
+      class="GC-game-info"
+      v-if="bottom_display === 'probables' && probable_pitchers"
+    >
+      {{ probable_pitchers.away }}<br />
+      {{ probable_pitchers.home }}
+    </div>
     <div class="GC-game-info" v-if="bottom_display === 'result' && decisions">
       W: {{ decisions.winner.fullName }} <br />
       L: {{ decisions.loser.fullName }} <br />
@@ -100,7 +110,8 @@ export default {
     calendar_event_id: { type: String, default: "" },
     "game-date": { type: String, default: "" },
     teams: { type: Object, default: () => {} },
-    decisions: { type: Object, default: () => {} }
+    decisions: { type: Object, default: () => {} },
+    probable_pitchers: { type: Object, default: () => {} }
   },
   computed: {
     half_name() {
@@ -124,6 +135,9 @@ export default {
     },
     game_time() {
       return moment(this.gameDate).format("LT");
+    },
+    description() {
+      return window.game_status_inds[this.status.codedGameState].description;
     }
   }
 };
