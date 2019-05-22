@@ -235,6 +235,20 @@
                 </div>
                 <div class="GC-priority__immediate-container">
                   <h4>Switch<br />Immediately?</h4>
+                  <a
+                    href="#"
+                    style="font-size: small;white-space: nowrap;"
+                    @click.prevent="toggleSwitchImmediately"
+                  >
+                    {{
+                      priorities
+                        .slice(0, priorities.length - 1)
+                        .filter(p => !p.immediate).length === 0
+                        ? "Deselect"
+                        : "Select"
+                    }}
+                    All
+                  </a>
                 </div>
               </div>
             </div>
@@ -648,7 +662,7 @@ export default {
             fp => fp.id == this.current_game.teams.home.team.id
           )
         );
-        let feed = this.video_feeds[this.feed_priorities[0].id];
+        let feed = this.video_feeds[this.feed_priorities[index].id];
         game_url = "https://www.mlb.com/tv/g" + this.current_game.gamePk;
         if (feed) {
           game_url += "/v" + feed.contentId;
@@ -701,16 +715,22 @@ export default {
       }
       // if no preference items were met
       if (!current_game) {
+        let ordered_filtered_games = this.ordered_filtered_games.filter(
+          g =>
+            this.teams.find(t => t.id == g.teams.away.team.id).ignore ===
+              false &&
+            this.teams.find(t => t.id == g.teams.home.team.id).ignore === false
+        );
         if (
-          this.ordered_filtered_games.length > 0 &&
+          ordered_filtered_games.length > 0 &&
           ((reason_priority.type === "no-preference-items-were-met" &&
             ordered_filtered_games[0].leverage_index >
               this.current_game.leverage_index + 0.5) ||
             reason_priority.type !== "no-preference-items-were-met")
         ) {
           current_game =
-            this.ordered_filtered_games.length > 0
-              ? { ...this.ordered_filtered_games[0] }
+            ordered_filtered_games.length > 0
+              ? { ...ordered_filtered_games[0] }
               : null;
           reason_priority = { type: "no-preference-items-were-met" };
         }
@@ -720,8 +740,8 @@ export default {
     },
     gameAndPriorityMatch(game, priority) {
       if (
-        this.teams.find(g => g.id == game.teams.away.team.id).ignore ||
-        this.teams.find(g => g.id == game.teams.home.team.id).ignore
+        this.teams.find(t => t.id == game.teams.away.team.id).ignore ||
+        this.teams.find(t => t.id == game.teams.home.team.id).ignore
       ) {
         return false;
       }
@@ -822,14 +842,21 @@ export default {
           switch (priority.data) {
             case "PosP_pit":
               return (
+                !!game.linescore &&
+                !!game.linescore.defense &&
                 window.posPlayers[game.linescore.defense.pitcher.id] === "PosP"
               );
             case "extra":
-              return game.linescore.currentInning > 9;
+              return (
+                game.linescore &&
+                game.linescore.currentInning > 9 &&
+                window.game_status_inds[game.status.codedGameState]
+                  .bottom_display === "current"
+              );
             case "replay":
               return (
-                !!window.game_status_inds[g.status.codedGameState] &&
-                window.game_status_inds[g.status.codedGameState].challenge
+                !!window.game_status_inds[game.status.codedGameState] &&
+                window.game_status_inds[game.status.codedGameState].challenge
               );
             case "21Ks":
               console.log("21Ks NOT YET IMPLEMENTED");
@@ -894,6 +921,23 @@ export default {
           }
         }
       });
+    },
+    toggleSwitchImmediately() {
+      let immediate = true;
+      if (
+        this.priorities
+          .slice(0, this.priorities.length - 1)
+          .filter(p => !p.immediate).length === 0
+      ) {
+        immediate = false;
+      }
+      for (
+        var priorityIndex = 0;
+        priorityIndex < this.priorities.length - 1;
+        priorityIndex++
+      ) {
+        this.priorities[priorityIndex].immediate = immediate;
+      }
     }
   },
   computed: {
@@ -1060,6 +1104,7 @@ export default {
                 return "";
             }
           case "":
+          case "no-preference-items-were-met":
             return;
           default:
             console.log(
