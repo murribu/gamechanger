@@ -471,6 +471,9 @@ export default {
     }
     if (localStorage.getItem("GC-delay")) {
       this.delay = localStorage.getItem("GC-delay");
+      if (this.delay > 999) {
+        this.delay /= 1000;
+      }
     }
     if (localStorage.getItem("GC-vid")) {
       this.vid_player = localStorage.getItem("GC-vid");
@@ -723,10 +726,11 @@ export default {
         );
         if (
           ordered_filtered_games.length > 0 &&
-          ((reason_priority.type === "no-preference-items-were-met" &&
+          (reason_priority.type === "no-preference-items-were-met" &&
             ordered_filtered_games[0].leverage_index >
-              this.current_game.leverage_index + 0.5) ||
-            reason_priority.type !== "no-preference-items-were-met")
+              this.games.find(g => g.gamePk === current_game.gamePk)
+                .leverage_index +
+                0.5)
         ) {
           current_game =
             ordered_filtered_games.length > 0
@@ -844,6 +848,7 @@ export default {
               return (
                 !!game.linescore &&
                 !!game.linescore.defense &&
+                !!game.linescore.defense.pitcher &&
                 window.posPlayers[game.linescore.defense.pitcher.id] === "PosP"
               );
             case "extra":

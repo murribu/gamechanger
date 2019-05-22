@@ -681,10 +681,10 @@ window.game_status_inds = {
     challenge: false
   },
   S: {
-    description: "Suspended",
+    description: "Scheduled",
     sort_score: 65,
     main_display: "preview",
-    bottom_display: "description",
+    bottom_display: "probables",
     challenge: false
   },
   D: {
