@@ -198,6 +198,32 @@
       </div>
       <div class="GC-column">
         <div class="GC-settings">
+          <div class="GC-settings-title">Video Feed Priority</div>
+          <draggable v-model="feed_priorities">
+            <div
+              class="GC-prioirtyContainer"
+              v-for="(feed, key) in feed_priorities"
+            >
+              <span>{{ key + 1 }}</span>
+              <div
+                class="drag__container"
+                :id="'feed_drag_container' + (key + 1)"
+              >
+                <div
+                  class="xdrag-element"
+                  :class="{ inactive: !video_feeds[feed.id] }"
+                >
+                  <div class="GC-priority__type-container">
+                    {{ feed.tbg_abbr }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </draggable>
+        </div>
+      </div>
+      <div class="GC-column">
+        <div class="GC-settings">
           <h3 class="GC-settings-title">Priority List</h3>
           <div class="GC-title-container">
             <span class="GC-priorityNumber">#</span>
@@ -308,7 +334,9 @@ export default {
       check_child_interval: null,
       check_child_interval_frequency: 500, // each unit is 1 millisecond
       video_launched: false,
-      probable_pitchers: {}
+      probable_pitchers: {},
+      feed_priorities: [],
+      video_feeds: {}
     };
   },
   watch: {
@@ -357,6 +385,12 @@ export default {
       },
       deep: true
     },
+    feed_priorities: {
+      handler: function(val, oldVal) {
+        localStorage.setItem("GC-feed_priority", JSON.stringify(val));
+      },
+      deep: true
+    },
     teams: {
       handler: function(val, oldVal) {
         localStorage.setItem(
@@ -375,7 +409,9 @@ export default {
     },
     current_game: {
       handler: function(val, oldVal) {
-        this.setGameWindowUrl();
+        if (val.gamePk !== oldVal.gamePk) {
+          this.setGameWindowUrl();
+        }
       },
       deep: true
     },
@@ -396,6 +432,13 @@ export default {
         t.ignore = ignoredTeams.indexOf(t.id) > -1;
         return t;
       });
+      if (localStorage.getItem("GC-feed_priority")) {
+        this.feed_priorities = JSON.parse(
+          localStorage.getItem("GC-feed_priority")
+        );
+      } else {
+        this.feed_priorities = [...window.teams];
+      }
     });
     if (localStorage.getItem("GC-priority")) {
       this.priorities = JSON.parse(localStorage.getItem("GC-priority")).map(
@@ -424,6 +467,10 @@ export default {
       );
     }
     this.getProbablePitchers();
+    this.getVideoFeeds();
+    setInterval(() => {
+      this.getVideoFeeds();
+    }, 1000 * 60 * 5); // get the video feeds every 5 minutes
     this.updateGames();
     this.update_games_interval = setInterval(() => {
       this.updateGames();
@@ -593,7 +640,19 @@ export default {
           this.current_game.calendarEventId +
           "&media_id=&view_key=&media_type=video&source=MLB&sponsor=MLB&clickOrigin=Media+Grid&affiliateId=Media+Grid&team=mlb";
       } else {
+        let index = Math.min(
+          this.feed_priorities.findIndex(
+            fp => fp.id == this.current_game.teams.away.team.id
+          ),
+          this.feed_priorities.findIndex(
+            fp => fp.id == this.current_game.teams.home.team.id
+          )
+        );
+        let feed = this.video_feeds[this.feed_priorities[0].id];
         game_url = "https://www.mlb.com/tv/g" + this.current_game.gamePk;
+        if (feed) {
+          game_url += "/v" + feed.contentId;
+        }
       }
 
       setTimeout(
@@ -786,6 +845,55 @@ export default {
           return false;
           break;
       }
+    },
+    getVideoFeeds() {
+      const user_date = new Date();
+      const user_time = user_date.getTime();
+      const user_offset = user_date.getTimezoneOffset() * 60000;
+      const utc = user_time + user_offset;
+      const western_time = utc + 3600000 * -8;
+      const date = new Date(western_time);
+
+      const day = ("0" + date.getDate()).slice(-2);
+      const month = ("0" + (date.getMonth() + 1)).slice(-2);
+      const year = date.getFullYear();
+      let self = this;
+      const url = `https://statsapi.mlb.com/api/v1/schedule?language=en&sportId=1&date=${month +
+        "/" +
+        day +
+        "/" +
+        year}&sortBy=gameDate&hydrate=game(content(media(epg)))`;
+      axios.get(url).then(({ data }) => {
+        const games_from_mlb = data.dates[0].games;
+        for (
+          var gameIndex = 0;
+          gameIndex < games_from_mlb.length;
+          gameIndex++
+        ) {
+          let game = games_from_mlb[gameIndex];
+          if (
+            game.content &&
+            game.content.media &&
+            game.content.media.epg &&
+            game.content.media.epg.find(e => e.title === "MLBTV") &&
+            window.game_status_inds[game.status.codedGameState]
+              .bottom_display === "current"
+          ) {
+            let away = game.content.media.epg
+              .find(e => e.title === "MLBTV")
+              .items.find(i => i.mediaFeedType === "AWAY");
+            if (away) {
+              self.video_feeds[parseInt(away.mediaFeedSubType)] = away;
+            }
+            let home = game.content.media.epg
+              .find(e => e.title === "MLBTV")
+              .items.find(i => i.mediaFeedType === "HOME");
+            if (home) {
+              self.video_feeds[parseInt(home.mediaFeedSubType)] = home;
+            }
+          }
+        }
+      });
     }
   },
   computed: {
@@ -980,6 +1088,9 @@ export default {
 </script>
 
 <style scoped>
+.xdrag-element.inactive {
+  opacity: 0.5;
+}
 .xdrag-element {
   display: inline-block;
   background-color: #eee;
@@ -987,5 +1098,6 @@ export default {
   border-radius: 0.2rem;
   cursor: move;
   padding: 0.5rem;
+  opacity: 1;
 }
 </style>
