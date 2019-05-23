@@ -728,9 +728,9 @@ export default {
           ordered_filtered_games.length > 0 &&
           ((!this.reason_priority ||
             this.reason_priority.type === "no-preference-items-were-met") &&
-            (!this.games.find(g => g.gamePk === current_game.gamePk) ||
+            (!this.games.find(g => g.gamePk === this.current_game.gamePk) ||
               ordered_filtered_games[0].leverage_index >
-                this.games.find(g => g.gamePk === current_game.gamePk)
+                this.games.find(g => g.gamePk === this.current_game.gamePk)
                   .leverage_index +
                   0.5))
         ) {
@@ -741,8 +741,11 @@ export default {
           reason_priority = { type: "no-preference-items-were-met" };
         }
       }
-      this.current_game = current_game;
-      this.reason_priority = reason_priority;
+
+      if (current_game) {
+        this.current_game = current_game;
+        this.reason_priority = reason_priority;
+      }
     },
     gameAndPriorityMatch(game, priority) {
       if (
