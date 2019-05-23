@@ -605,7 +605,7 @@ export default {
               ? championship_leverage_index *
                 window.LI[
                   Math.min(game.linescore.currentInning, 9).toString() +
-                    (game.linescore.isTopInning === "true" ? 1 : 2).toString() +
+                    (game.linescore.isTopInning ? 1 : 2).toString() +
                     game.base_situation.ordinal.toString() +
                     game.linescore.outs
                 ][
@@ -726,11 +726,13 @@ export default {
         );
         if (
           ordered_filtered_games.length > 0 &&
-          (reason_priority.type === "no-preference-items-were-met" &&
-            ordered_filtered_games[0].leverage_index >
-              this.games.find(g => g.gamePk === current_game.gamePk)
-                .leverage_index +
-                0.5)
+          ((!this.reason_priority ||
+            this.reason_priority.type === "no-preference-items-were-met") &&
+            (!this.games.find(g => g.gamePk === current_game.gamePk) ||
+              ordered_filtered_games[0].leverage_index >
+                this.games.find(g => g.gamePk === current_game.gamePk)
+                  .leverage_index +
+                  0.5))
         ) {
           current_game =
             ordered_filtered_games.length > 0
@@ -745,7 +747,9 @@ export default {
     gameAndPriorityMatch(game, priority) {
       if (
         this.teams.find(t => t.id == game.teams.away.team.id).ignore ||
-        this.teams.find(t => t.id == game.teams.home.team.id).ignore
+        this.teams.find(t => t.id == game.teams.home.team.id).ignore ||
+        window.game_status_inds[game.status.codedGameState].bottom_display !==
+          "current"
       ) {
         return false;
       }
